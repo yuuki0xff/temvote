@@ -22,10 +22,10 @@
         xhr.send();
     }
 
-    function vote(status, success, error) {
-        var params = {
-            'vote': status
-        };
+    function vote(hotOrCold, success, error) {
+        var params = new FormData();
+        params.append('vote', hotOrCold);
+
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/api/v1/status');
         xhr.responseType = 'json';
