@@ -6,11 +6,21 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>TODO supply a titl</title>
+        <title>temvote</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/commonStyle.css" type="text/css"> 
+        <script type="text/javascript" src="js/temperature.js"></script> 
+        <script>init()</script>
     </head>
+    
     <body>
-        <div>TODO write content</div>
+        <h1 id="title">この講義室…</h1>
+        <h1 id="title">　　<font color="ff0000">暑い？</font>　<font color="0000ff">寒い？</font></h1>
+        
+        <p id="drawTemp"><script>setInterval(draw_temperature,10000);</script></p>
+        
+        
     </body>
+    
 </html>
