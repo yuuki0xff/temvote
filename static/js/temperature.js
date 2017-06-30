@@ -11,7 +11,7 @@
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/api/v1/status');
         xhr.responseType = 'json';
-        xhr.onreadystatechange = function () {
+        xhr.onload = function () {
             if (xhr.status === 200 || xhr.status === 302) {
                 status = xhr.response;
                 success(status);
@@ -29,7 +29,7 @@
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/api/v1/status');
         xhr.responseType = 'json';
-        xhr.onreadystatechange = function () {
+        xhr.onload = function () {
             if (xhr.status === 200 || xhr.status === 302) {
                 status = xhr.response;
                 success(status);
