@@ -45,7 +45,7 @@
     }
 
     function update() {
-        document.querySelector('.templeture_text').innerText = status.templature;
+        document.querySelector('.temperature_text').innerText = status.templature;
         document.querySelector('.counter.hot').innerText = status.hot;
         document.querySelector('.counter.cold').innerText = status.cold;
     }
