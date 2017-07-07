@@ -32,7 +32,7 @@
 
     function getCurrentStatus(success, error) {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/api/v1/status');
+        xhr.open('GET', '/api/v1/status?room=' + roomId);
         xhr.responseType = 'json';
         xhr.onload = function () {
             if (xhr.status === 200 || xhr.status === 302) {
@@ -50,7 +50,7 @@
         params.append('vote', hotOrCold);
 
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/v1/status');
+        xhr.open('POST', '/api/v1/status?room=' + roomId);
         xhr.responseType = 'json';
         xhr.onload = function () {
             if (xhr.status === 200 || xhr.status === 302) {

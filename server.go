@@ -12,6 +12,18 @@ import (
 	"sync"
 )
 
+var roomIds = []string{
+	"kougi201",
+	"kougi202",
+	"kougi203",
+	"kougi204",
+
+	"kougi301",
+	"kougi302",
+	"kougi303",
+	"kougi304",
+}
+
 type Status struct {
 	Templature float32 `json:"templature"`
 	Hot        uint    `json:"hot"`
@@ -22,15 +34,28 @@ type Status struct {
 func getRouter() *mux.Router {
 	cwd, _ := os.Getwd()
 	docroot := http.Dir(cwd + "/static")
-	stat := &Status{
-		Templature: 30.0,
-		Hot: 20,
-		Cold: 1,
+	statMap := make(map[string]*Status)
+	for id := range roomIds {
+		statMap[roomIds[id]] = &Status{
+			Templature: 30.0,
+			Hot: 0,
+			Cold: 0,
+			lock: sync.RWMutex{},
+		}
 	}
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api/v1/status", func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
+
+		roomId := req.URL.Query().Get("room")
+		stat := statMap[roomId]
+		if stat == nil {
+			w.WriteHeader(500)
+			return
+		}
+		stat.lock.RLock()
+		defer stat.lock.RUnlock()
 
 		js, err := json.Marshal(*stat)
 		if err != nil {
@@ -43,6 +68,13 @@ func getRouter() *mux.Router {
 	}).Methods("GET")
 	router.HandleFunc("/api/v1/status", func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
+
+		roomId := req.URL.Query().Get("room")
+		stat := statMap[roomId]
+		if stat == nil {
+			w.WriteHeader(500)
+			return
+		}
 		stat.lock.Lock()
 		defer stat.lock.Unlock()
 
