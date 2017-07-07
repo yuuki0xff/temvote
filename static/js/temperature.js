@@ -61,4 +61,7 @@
     document.querySelector('.button.cold').addEventListener('click', function () {
         vote('cold', update, showErrorMessage);
     });
+    for(var button of document.querySelectorAll('.button')) {
+        button.onclick = function() {return false;};
+    }
 })();
