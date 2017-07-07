@@ -1,37 +1,64 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-/*
-onload = function() {
-  draw();
-};
+(function () {
+    "use strict";
+    var updateInterval = 10 * 1000;  // 10s
+    var status = null;
 
-*/
+    // .templeture_text
+    // .button.hot
+    // .button.cold
 
+    function getCurrentStatus(success, error) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/v1/status');
+        xhr.responseType = 'json';
+        xhr.onload = function () {
+            if (xhr.status === 200 || xhr.status === 302) {
+                status = xhr.response;
+                success(status);
+            } else {
+                error();
+            }
+        };
+        xhr.send();
+    }
 
-/* canvas要素のノードオブジェクト */
-  /*var canvas = document.getElementById('cv');*/
-  /* canvas要素の存在チェックとCanvas未対応ブラウザの対処 */
-  /*
-  if ( ! canvas || ! canvas.getContext ) {
-    return false;
-  }
-  */
-  /* 2Dコンテキスト */
-  /*var ctx = canvas.getContext('2d');*/
+    function vote(hotOrCold, success, error) {
+        var params = new FormData();
+        params.append('vote', hotOrCold);
 
-var temperature;
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/v1/status');
+        xhr.responseType = 'json';
+        xhr.onload = function () {
+            if (xhr.status === 200 || xhr.status === 302) {
+                status = xhr.response;
+                success(status);
+            } else {
+                error();
+            }
+        };
+        xhr.send(params);
+    }
 
-function init() {
-    temperature = 20;
-}
+    function showErrorMessage() {
+        alert('error');
+    }
 
-function draw_temperature() {
-    temperature++;
-    var elem = document.getElementById("drawTemp");
-    elem.innerHTML = "現在<strong style=\"border-style: solid ; border-width: 2px;\">"+ temperature +"℃</font></strong>です";
-  
-}
+    function update() {
+        document.querySelector('.temperature_text').innerText = status.templature;
+        document.querySelector('.counter.hot').innerText = status.hot;
+        document.querySelector('.counter.cold').innerText = status.cold;
+    }
 
+    getCurrentStatus(update, showErrorMessage);
+    setInterval(function () {
+        getCurrentStatus(update, showErrorMessage);
+    }, updateInterval);
+
+    document.querySelector('.button.hot').addEventListener('click', function () {
+        vote('hot', update, showErrorMessage);
+    });
+    document.querySelector('.button.cold').addEventListener('click', function () {
+        vote('cold', update, showErrorMessage);
+    });
+})();
