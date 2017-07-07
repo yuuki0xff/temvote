@@ -69,7 +69,7 @@ div.select_button{
     
 }
 
-img.button{
+div.select_button img.button{
     text-align: center;
     
     border-style: solid;
@@ -90,7 +90,7 @@ a.button{
 }
 
 
-span.displayCount{
+div.select_button span.displayCount{
     
     font-size: 10vmin;
     
@@ -99,13 +99,13 @@ span.displayCount{
     
 }
 
-.hot_button_outer{
+div.select_button .hot_button_outer{
     
     float: left;
     
 }
 
-.cold_button_outer{
+div.select_button .cold_button_outer{
     
     float: right;
     
