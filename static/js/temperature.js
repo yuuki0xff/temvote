@@ -24,6 +24,7 @@
         var kv = pair.split('=');
         searchParams[kv[0]] = kv[1];
     }
+    var roomId = searchParams['room'];
 
     // .templeture_text
     // .button.hot
@@ -92,7 +93,7 @@
     //////////////////////////////
     // 教室名を出力
     if ('room' in searchParams) {
-        document.querySelector('.room_name_text').innerText = roomId2RoomName[searchParams['room']];
+        document.querySelector('.room_name_text').innerText = roomId2RoomName[roomId];
     } else {
         window.location = 'select_room.html';
     }
