@@ -13,16 +13,23 @@ and open the template in the editor.
         <script type="text/javascript" src="js/temperature.js"></script> 
         <script>init()</script>
     </head>
-    
+
     <body>
-        <h1 id="title">この講義室…</h1>
-        <h1 id="title">　　<font color="ff0000">暑い？</font>　<font color="0000ff">寒い？</font></h1>
+        <h1 class="voteTitle">この講義室…</h1>
+        <h1 class="voteTitle">　　<span class="hotQuestion">暑い？</span>　<span class="coldQuestion">寒い？</span></h1>
+
+        <p id="drawTemp"><script>setInterval(draw_temperature, 100);</script></p>
         
-        <p id="drawTemp"><script>setInterval(draw_temperature,10000);</script></p>
-        
-        
-        
+        <p class="select_button">
+            <a class="button hot" href="#"><img class="button" src="img/hot_button.png" alt="暑いボタン"></a>
+            <span class="otherwise">or</span>
+            <a class="button cold" href="#"><img class="button" src="img/cold_button.png" alt="寒いボタン"></a>
+        </p>
         
     </body>
-    
+
 </html>
+
+
+
+

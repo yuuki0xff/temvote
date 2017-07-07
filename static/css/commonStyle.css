@@ -1,25 +1,93 @@
 
 
-
-
-h1#title {
-  font-size:300%;
-  margin: 0 auto;
-  width: 100%;
-  text-align: center;
-  max-width: 1260px;
-  min-width: 600px;
+body{
+    
+    margin: 5% 5%;
+    
+    min-width: 600px;
+    min-height: 100px;
+    
+    max-height: 400px;
 }
 
+h1.voteTitle{
+  font-size:300%;
+  
+  text-align: center;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  
+  width: 100%;
+  height: 20%;
+  
+}
+
+
+
+span.hotQuestion{
+  color: #ff0000;
+}
+
+span.coldQuestion{
+  color: #0000ff;
+}
+
+span.otherwise{
+    
+    font-size: 15vmin;
+    
+
+   
+    margin: 0 5%;
+    
+    
+}
 
 p#drawTemp{
     
     font-size:200%;
+    margin: 0 3%;
+    
+    height: 20%;
+    
     
 }
 
+p.select_button{
+    text-align: center;
+    
+    width: 100%;
+    height: 10%;
+    
+    white-space: nowrap;
+    
+    margin-bottom: 0px;
+    margin-top: 10px;
+    
+    
+}
 
+img.button{
+    text-align: center;
+    
+    border-style: solid;
+    border-width: 2px;
+    border-color: #000000;
+    
+    margin-bottom: 0px;
+    margin-top: 0px;
+    
+    width: 20%;
+    height: 20%;
+    
+    
+}
 
-
+a.button{
+    
+    margin-bottom: 0px;
+    margin-top: 0px;
+    
+}
 
 
