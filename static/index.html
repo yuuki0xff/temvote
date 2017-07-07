@@ -15,13 +15,17 @@ and open the template in the editor.
     <body>
         <h1 class="voteTitle">この講義室…</h1>
         <h1 class="voteTitle">　　<span class="hotQuestion">暑い？</span>　<span class="coldQuestion">寒い？</span></h1>
-        
-        <p class="select_button">
-            <a class="button hot" href="#"><img class="button" src="img/hot_button.png" alt="暑いボタン"></a>
+
+        <div class="select_button">
+            <div class="hot_button_outer"><a class="button hot" href="#"><img class="button" src="img/hot_button.png" alt="暑いボタン"></a><br/>
+                <span class="displayCount">[<span class="counter hot"></span>人]</span>
+            </div>
             <span class="otherwise">or</span>
-            <a class="button cold" href="#"><img class="button" src="img/cold_button.png" alt="寒いボタン"></a>
-        </p>
-        
+            <div class="cold_button_outer"><a class="button cold" href="#"><img class="button" src="img/cold_button.png" alt="寒いボタン"></a><br/>
+                <span class="displayCount">[<span class="counter cold"></span>人]</span>
+            </div>
+        </div>
+
         <script type="text/javascript" src="js/temperature.js"></script>
     </body>
 

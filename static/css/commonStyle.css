@@ -40,6 +40,8 @@ span.otherwise{
    
     margin: 0 5%;
     
+    margin-bottom: 0;
+    margin-top: 0;
     
 }
 
@@ -53,7 +55,7 @@ p#drawTemp{
     
 }
 
-p.select_button{
+div.select_button{
     text-align: center;
     
     width: 100%;
@@ -85,9 +87,26 @@ img.button{
 
 a.button{
     
+}
+
+
+span.displayCount{
+    
+    font-size: 10vmin;
+    
     margin-bottom: 0px;
     margin-top: 0px;
     
 }
 
+.hot_button_outer{
+    
+    float: left;
+    
+}
 
+.cold_button_outer{
+    
+    float: right;
+    
+}
