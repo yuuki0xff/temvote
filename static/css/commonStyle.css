@@ -65,8 +65,9 @@ div.select_button{
     
     margin-bottom: 0px;
     margin-top: 10px;
-    
-    
+
+    /* floatしている子要素の高さを親要素の高さに含める */
+    overflow-y: hidden;
 }
 
 div.select_button img.button{
@@ -109,4 +110,13 @@ div.select_button .cold_button_outer{
     
     float: right;
     
+}
+
+.current_temperature.message{
+    font-size: 10vmin;
+    text-align: center;
+}
+
+.float_end{
+    float: none;
 }
