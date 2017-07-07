@@ -5,7 +5,8 @@ body{
 }
 
 h1.voteTitle{
-  font-size:300%;
+  /* voteTitleの最大文字数が7なので、１も自分余裕を持ったサイズに設定 */
+  font-size: 12.5vw; /* = 100/8 */
   
   text-align: center;
   margin-bottom: 0px;
