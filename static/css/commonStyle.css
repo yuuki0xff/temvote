@@ -1,13 +1,7 @@
 
 
 body{
-    
     margin: 5% 5%;
-    
-    min-width: 600px;
-    min-height: 100px;
-    
-    max-height: 400px;
 }
 
 h1.voteTitle{
