@@ -1,7 +1,7 @@
 
 
 body{
-    margin: 5% 5%;
+    margin: 5vw;
 }
 
 h1.voteTitle{
@@ -75,10 +75,7 @@ div.select_button img.button{
     margin-bottom: 0px;
     margin-top: 0px;
     
-    width: 20vw;
-    height: 20vw;
-    
-    
+    width: 43vw;
 }
 
 a.button{
