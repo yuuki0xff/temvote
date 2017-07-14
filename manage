@@ -15,7 +15,7 @@ ansible() {
 
 function send() {
 	TAG=$1
-	URL=http://$SERVER/metrics/$SECRET_KEY/$TAG/$HOSTID/
+	URL=http://$SERVER/metrics/$SECRET_KEY/$HOSTID/$TAG
 	curl -X POST -d @- "$URL"
 }
 
