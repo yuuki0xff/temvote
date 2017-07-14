@@ -1,9 +1,9 @@
 package main
 
 import (
-	"sync"
-	"fmt"
 	"errors"
+	"fmt"
+	"sync"
 )
 
 var roomIds = []string{
@@ -30,16 +30,16 @@ type RoomStatusManager struct {
 	statMap map[string]*RoomStatus
 }
 
-func NewRoomStatusManager() (*RoomStatusManager) {
+func NewRoomStatusManager() *RoomStatusManager {
 	rs := &RoomStatusManager{}
 	rs.statMap = make(map[string]*RoomStatus)
 	for _, id := range roomIds {
 		rs.statMap[id] = &RoomStatus{
-			RoomID: id,
+			RoomID:     id,
 			Templature: 30.0,
-			Hot: 0,
-			Cold: 0,
-			lock: sync.RWMutex{},
+			Hot:        0,
+			Cold:       0,
+			lock:       sync.RWMutex{},
 		}
 	}
 	return rs

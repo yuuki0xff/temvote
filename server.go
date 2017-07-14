@@ -1,14 +1,14 @@
 package main
 
 import (
-	"os"
-	"os/signal"
 	"context"
-	"syscall"
-	"net/http"
-	"github.com/gorilla/mux"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func getRouter() *mux.Router {
@@ -40,7 +40,7 @@ func getRouter() *mux.Router {
 
 		roomId := req.URL.Query().Get("room")
 
-		switch req.FormValue("vote"){
+		switch req.FormValue("vote") {
 		case "hot":
 			rsm.Vote(roomId, 1, 0)
 		case "cold":
@@ -72,7 +72,7 @@ func getRouter() *mux.Router {
 
 func startHttpServer(ctx context.Context, router *mux.Router) (err error) {
 	srv := http.Server{
-		Addr: "0.0.0.0:8080",
+		Addr:    "0.0.0.0:8080",
 		Handler: router,
 	}
 	go func() {
