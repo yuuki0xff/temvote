@@ -2,8 +2,9 @@
 set -eu
 
 LOG_FILE=/tmp/.deploy.log
-CONF=/etc/deploy/
-DEPLOY=/srv/deploy/
+CONF=/etc/deploy
+DEPLOY=/srv/deploy
+DEPLOY_TAR_GZ=/srv/deploy.tar.gz
 
 SERVER=
 SECRET_KEY=M4UG6UBSA4AUHTDIAKNVZSYUE7WC6P4E2MD37ISIFLCLHVZ5B3ZFL6NQZILLRP7R3EOAVYFZAUKE
@@ -28,7 +29,7 @@ function deploy() {
 	if ! cmp <(curl $VERSION_URL) $CONF/version; then
 		# 最新版では無いことが確認できたので、デプロイスクリプトを実行
 		rm -rf $DEPLOY
-		curl $DEPLOY_URL >$DEPLOY.tar.gz
+		curl $DEPLOY_URL >$DEPLOY_TAR_GZ
 		mkdir -p $DEPLOY
 		tar xf $DEPLOY.tar.gz -C $DEPLOY
 		pushd $DEPLOY
