@@ -1,0 +1,9 @@
+
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m   h dom mon dow use   command
+*/10  *   *   *   * root  /usr/local/sbin/manage send_logs
+30    *   *   *   * root  /usr/local/sbin/manage deploy
+
+# vim: ft=crontab
