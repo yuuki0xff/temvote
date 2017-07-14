@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"errors"
 )
 
 var roomIds = []string{
@@ -32,12 +33,15 @@ type RoomStatus struct {
 	lock       sync.RWMutex
 }
 
-func getRouter() *mux.Router {
-	cwd, _ := os.Getwd()
-	docroot := http.Dir(cwd + "/static")
-	statMap := make(map[string]*RoomStatus)
+type RoomStatusManager struct {
+	statMap map[string]*RoomStatus
+}
+
+func NewRoomStatusManager() (*RoomStatusManager) {
+	rs := &RoomStatusManager{}
+	rs.statMap = make(map[string]*RoomStatus)
 	for _, id := range roomIds {
-		statMap[id] = &RoomStatus{
+		rs.statMap[id] = &RoomStatus{
 			RoomID: id,
 			Templature: 30.0,
 			Hot: 0,
@@ -45,21 +49,53 @@ func getRouter() *mux.Router {
 			lock: sync.RWMutex{},
 		}
 	}
+	return rs
+}
+
+func (rs *RoomStatusManager) GetStatus(id string) (*RoomStatus, error) {
+	stat := rs.statMap[id]
+	if stat == nil {
+		return nil, errors.New(fmt.Sprintf(`invalid id: "%s"`, id))
+	}
+
+	var newStat = *stat
+	return &newStat, nil
+}
+
+func (rs *RoomStatusManager) setter(id string, callback func(*RoomStatus) error) error {
+	stat := rs.statMap[id]
+	if stat == nil {
+		return nil
+	}
+	stat.lock.Lock()
+	defer stat.lock.Unlock()
+	return callback(stat)
+}
+
+func (rs *RoomStatusManager) Vote(id string, hot, cold int) error {
+	return rs.setter(id, func(status *RoomStatus) error {
+		status.Hot = uint(int(status.Hot) + hot)
+		status.Cold = uint(int(status.Cold) + cold)
+		return nil
+	})
+}
+
+func getRouter() *mux.Router {
+	cwd, _ := os.Getwd()
+	docroot := http.Dir(cwd + "/static")
+	rsm := NewRoomStatusManager()
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api/v1/status", func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
 
 		roomId := req.URL.Query().Get("room")
-		stat := statMap[roomId]
-		if stat == nil {
+		stat, err := rsm.GetStatus(roomId)
+		if err != nil {
 			w.WriteHeader(500)
 			return
 		}
-		stat.lock.RLock()
-		defer stat.lock.RUnlock()
-
-		js, err := json.Marshal(*stat)
+		js, err := json.Marshal(stat)
 		if err != nil {
 			w.WriteHeader(500)
 			return
@@ -72,21 +108,20 @@ func getRouter() *mux.Router {
 		w.Header().Set("Cache-Control", "no-store")
 
 		roomId := req.URL.Query().Get("room")
-		stat := statMap[roomId]
-		if stat == nil {
-			w.WriteHeader(500)
-			return
-		}
-		stat.lock.Lock()
-		defer stat.lock.Unlock()
 
 		switch req.FormValue("vote"){
 		case "hot":
-			stat.Hot++
+			rsm.Vote(roomId, 1, 0)
 		case "cold":
-			stat.Cold++
+			rsm.Vote(roomId, 0, 1)
 		default:
 			w.WriteHeader(400)
+			return
+		}
+
+		stat, err := rsm.GetStatus(roomId)
+		if err != nil {
+			w.WriteHeader(500)
 			return
 		}
 
