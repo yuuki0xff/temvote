@@ -5,16 +5,27 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func getRouter() *mux.Router {
 	cwd, _ := os.Getwd()
 	docroot := http.Dir(cwd + "/static")
+	deployroot := http.Dir(cwd + "/static.deploy")
 	rsm := NewRoomStatusManager()
+	sm, err := NewSecretManager("./secret.conf")
+	if err != nil {
+		panic(err)
+	}
+	mw, err := NewMetricsWriter("metrics.jsonl")
+	if err != nil {
+		panic(err)
+	}
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api/v1/status", func(w http.ResponseWriter, req *http.Request) {
@@ -64,6 +75,46 @@ func getRouter() *mux.Router {
 		}
 		w.Write(js)
 	}).Methods("POST")
+
+	router.HandleFunc("/metrics", func(w http.ResponseWriter, req *http.Request) {
+		hostid := req.Header.Get("X-HOSTID")
+		secret := req.Header.Get("X-SECRET")
+		if !sm.hasAuth(hostid, secret) {
+			w.WriteHeader(400)
+			return
+		}
+
+		tag := req.Header.Get("X-TAG")
+		rawBody, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			w.WriteHeader(500)
+			println(err.Error(), req.ContentLength)
+			return
+		}
+
+		if err := mw.Write(Metrics{
+			HostID:    hostid,
+			Tag:       tag,
+			Body:      string(rawBody),
+			Timestamp: time.Now().Unix(),
+		}); err != nil {
+			w.WriteHeader(500)
+			println(err.Error())
+			return
+		}
+	}).Methods("POST")
+
+	deployFileServer := http.StripPrefix("/deploy/", http.FileServer(deployroot))
+	router.HandleFunc("/deploy/{name:.*}", func(w http.ResponseWriter, req *http.Request) {
+		hostid := req.Header.Get("X-HOSTID")
+		secret := req.Header.Get("X-SECRET")
+		if !sm.hasAuth(hostid, secret) {
+			w.WriteHeader(400)
+			return
+		}
+
+		deployFileServer.ServeHTTP(w, req)
+	}).Methods("GET")
 	router.Handle(`/`, http.FileServer(docroot)).Methods("GET")
 	router.Handle(`/{name:.*}`, http.FileServer(docroot)).Methods("GET")
 
