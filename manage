@@ -16,7 +16,7 @@ ansible() {
 function send() {
 	TAG=$1
 	URL=http://$SERVER/metrics/$SECRET_KEY/$HOSTID/$TAG
-	curl -X POST -d @- "$URL"
+	curl -X POST --data-binary @- -H 'Content-Type: text/plain'  "$URL"
 }
 
 function send_logs() {
