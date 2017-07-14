@@ -10,19 +10,24 @@ import fcntl
 
 app = Flask(__name__)
 SECRET_KEY='M4UG6UBSA4AUHTDIAKNVZSYUE7WC6P4E2MD37ISIFLCLHVZ5B3ZFL6NQZILLRP7R3EOAVYFZAUKE'
-LOGFILE = './metrics.jsonl'
+METRICS_FILE = './metrics.jsonl'
 
 
-@app.route('/metrics/<secret>/<hostid>/<tag>/', methods=['POST'])
+@app.route('/metrics/<secret>/<hostid>/<tag>', methods=['POST'])
 def metrics_handler(secret, hostid, tag):
 	if secret != SECRET_KEY:
 		return make_response(('', 400, []))
 
-	data = {'hostid': hostid, 'tag': tag}
+	data = {
+			'hostid': hostid,
+			'tag': tag,
+			'data': str(flask.request.data, 'UTF-8'),
+			}
 
-	with open(LOGFILE, 'w+') as f:
+	with open(METRICS_FILE, 'a+') as f:
 		fcntl.flock(f.fileno(), fcntl.LOCK_EX)
-		json.dump(f, data)
+		json.dump(data, f)
+		f.write('\n')
 
 	return ''
 
