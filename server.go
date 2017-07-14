@@ -9,14 +9,15 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"syscall"
 	"time"
 )
 
 func getRouter() *mux.Router {
 	cwd, _ := os.Getwd()
-	docroot := http.Dir(cwd + "/static")
-	deployroot := http.Dir(cwd + "/static.deploy")
+	docroot := http.Dir(path.Join(cwd, "static"))
+	deployroot := http.Dir(path.Join(cwd, "static.deploy"))
 	rsm := NewRoomStatusManager()
 	sm, err := NewSecretManager("./secret.conf")
 	if err != nil {
