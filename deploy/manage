@@ -6,14 +6,40 @@ CONF=/etc/deploy
 DEPLOY=/srv/deploy
 DEPLOY_TAR_GZ=/srv/deploy.tar.gz
 
-SERVER=
-SECRET_KEY=M4UG6UBSA4AUHTDIAKNVZSYUE7WC6P4E2MD37ISIFLCLHVZ5B3ZFL6NQZILLRP7R3EOAVYFZAUKE
+# configには、下記のファイルが定義されていなければならない。また、環境変数を上書きしてはならない
+# SERVER
+# SECRET_KEY
+if [ -f /etc/deploy/config ]; then
+	. /etc/deploy/config
+fi
 HOSTID=$(hostid)
+
+
+function error() {
+	echo "$@" >&2
+	exit 1
+}
+
+# check env
+[ -z "${SERVER:-}" ]     && error 'ERROR: "$SERVER" must not be empty.'
+[ -z "${SECRET_KEY:-}" ] && error 'ERROR: "$SECRET_KEY" must not be empty.'
 
 function send() {
 	TAG=$1
-	URL=http://$SERVER/metrics/$SECRET_KEY/$HOSTID/$TAG
-	curl -X POST --data-binary @- -H 'Content-Type: text/plain'  "$URL"
+	URL=$SERVER/metrics
+	curl -X POST --data-binary @- \
+		-H "X-SECRET: $SECRET_KEY" \
+		-H "X-HOSTID: $HOSTID" \
+		-H "X-TAG: $TAG"
+		-H 'Content-Type: text/plain' \
+		"$URL"
+}
+
+function get_file() {
+	URL=$SERVER/deploy/$1
+	curl "$URL" \
+		-H "X-SECRET: $SECRET_KEY" \
+		-H "X-HOSTID: $HOSTID"
 }
 
 function send_logs() {
@@ -23,13 +49,10 @@ function send_logs() {
 }
 
 function deploy() {
-	VERSION_URL=http://$SERVER/deploy/$SECRET_KEY/latest_version
-	DEPLOY_URL=http://$SERVER/deploy/$SECRET_KEY/deploy.tar.gz
-
-	if ! cmp <(curl $VERSION_URL) $CONF/version; then
+	if ! cmp <(get_file latest_version) $CONF/version; then
 		# 最新版では無いことが確認できたので、デプロイスクリプトを実行
 		rm -rf $DEPLOY
-		curl $DEPLOY_URL >$DEPLOY_TAR_GZ
+		get_file deploy.tar.gz >$DEPLOY_TAR_GZ
 		mkdir -p $DEPLOY
 		tar xf $DEPLOY.tar.gz -C $DEPLOY
 		pushd $DEPLOY
