@@ -25,6 +25,7 @@ var roomIds = []string{
 }
 
 type RoomStatus struct {
+	RoomID     string  `json:"id"`
 	Templature float32 `json:"templature"`
 	Hot        uint    `json:"hot"`
 	Cold       uint    `json:"cold"`
@@ -35,8 +36,9 @@ func getRouter() *mux.Router {
 	cwd, _ := os.Getwd()
 	docroot := http.Dir(cwd + "/static")
 	statMap := make(map[string]*RoomStatus)
-	for id := range roomIds {
-		statMap[roomIds[id]] = &RoomStatus{
+	for _, id := range roomIds {
+		statMap[id] = &RoomStatus{
+			RoomID: id,
 			Templature: 30.0,
 			Hot: 0,
 			Cold: 0,
