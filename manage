@@ -1,0 +1,45 @@
+#!/bin/bash
+set -eu
+
+LOG_FILE=/tmp/.deploy.log
+CONF=/etc/deploy/
+DEPLOY_PLAYBOOK=/srv/deploy
+
+SERVER=
+SECRET_KEY=M4UG6UBSA4AUHTDIAKNVZSYUE7WC6P4E2MD37ISIFLCLHVZ5B3ZFL6NQZILLRP7R3EOAVYFZAUKE
+HOSTID=$(hostid)
+
+ansible() {
+	docker --rm -it -v $PWD:/srv -w /srv ansible/ubuntu14.04-ansible ansible "$@"
+}
+
+function send() {
+	TAG=$1
+	URL=http://$SERVER/metrics/$SECRET_KEY/$TAG/$HOSTID/
+	curl -X POST -d @- "$URL"
+}
+
+function send_logs() {
+	cat $CONF/version |send version
+	ip a |send tag
+	docker ps |send docker-ps
+}
+
+function deploy() {
+	VERSION_URL=http://$SERVER/deploy/$SECRET_KEY/latest_version
+	DEPLOY_URL=http://$SERVER/deploy/$SECRET_KEY/ansible-playbook.tar.gz
+
+	if ! cmp <(curl $VERSION_URL) $CONF/version; then
+		# 最新版では無いことが確認できたので、デプロイスクリプトを実行
+		rm -rf $DEPLOY_PLAYBOOK
+		curl $DEPLOY_URL >$DEPLOY_PLAYBOOK.tar.gz
+		mkdir -p $DEPLOY_PLAYBOOK
+		tar xf $DEPLOY_PLAYBOOK.tar.gz -C $DEPLOY_PLAYBOOK
+		pushd $DEPLOY_PLAYBOOK
+		ansible
+		popd
+	fi
+}
+
+"$@" &>$LOG_FILE || send error <$LOG_FILE
+rm $LOG_FILE
