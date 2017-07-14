@@ -21,7 +21,7 @@ function send() {
 
 function send_logs() {
 	cat $CONF/version |send version
-	ip a |send tag
+	ip a |send ip
 	docker ps |send docker-ps
 }
 
