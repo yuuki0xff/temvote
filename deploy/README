@@ -1,0 +1,13 @@
+temvoteのデプロイスクリプト
+
+外部からの直接アクセスすることができない可能性が高いため、pull形式のデプロイを行う。
+RasPi側でこれらのスクリプトを稼働させると、5分間隔でデプロイする
+
+RaspberyPi側 ログ送信
+$ manage send_logs
+
+RaspberyPi側 デプロイ実行
+$ manage deploy
+
+サーバ起動方法
+$ FLASK_APP=server.py flask run --host=0.0.0.0 --port=8000
