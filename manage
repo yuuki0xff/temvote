@@ -9,8 +9,8 @@ SERVER=
 SECRET_KEY=M4UG6UBSA4AUHTDIAKNVZSYUE7WC6P4E2MD37ISIFLCLHVZ5B3ZFL6NQZILLRP7R3EOAVYFZAUKE
 HOSTID=$(hostid)
 
-ansible() {
-	docker --rm -it -v $PWD:/srv -w /srv ansible/ubuntu14.04-ansible ansible "$@"
+ansible-playbook() {
+	docker run --rm -it -v $PWD:/srv -w /srv ansible/ubuntu14.04-ansible ansible-playbook "$@"
 }
 
 function send() {
@@ -36,7 +36,7 @@ function deploy() {
 		mkdir -p $DEPLOY_PLAYBOOK
 		tar xf $DEPLOY_PLAYBOOK.tar.gz -C $DEPLOY_PLAYBOOK
 		pushd $DEPLOY_PLAYBOOK
-		ansible
+		ansible-playbook ./deploy.yml
 		popd
 	fi
 }
