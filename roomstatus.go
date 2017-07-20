@@ -113,11 +113,13 @@ func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) erro
 		}
 
 		// 以前の投票を取り消す
-		switch s.Values["vote"].(string) {
-		case "hot":
-			hot -= 1
-		case "cold":
-			cold -= 1
+		if s.Values["vote"] != nil {
+			switch s.Values["vote"].(string) {
+			case "hot":
+				hot -= 1
+			case "cold":
+				cold -= 1
+			}
 		}
 
 		// 投票結果をCookieに保存
