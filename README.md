@@ -5,6 +5,13 @@
 Webフロントエンド側のサーバ + RaspberyPiのログ収集サーバ
 
 ```bash
+$ make
 $ go build
+
+$ export TEMVOTE_STATIC_DIR=./static
+$ export TEMVOTE_DEPLOY_DIR=./static.deploy
+$ export TEMVOTE_SECRET_FILE=./secret.conf
+$ export TEMVOTE_METRICS_FILE=./metrics.jsonl
+$ touch ./secret.conf
 $ ./temvote
 ```

@@ -5,25 +5,32 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/kelseyhightower/envconfig"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
-	"path"
 	"syscall"
 	"time"
 )
 
-func getRouter() *mux.Router {
-	cwd, _ := os.Getwd()
-	docroot := http.Dir(path.Join(cwd, "static"))
-	deployroot := http.Dir(path.Join(cwd, "static.deploy"))
+type RouterOption struct {
+	StaticDir   string `envconfig:"STATIC_DIR"`
+	DeployDir   string `envconfig:"DEPLOY_DIR"`
+	SecretFile  string `envconfig:"SECRET_FILE"`
+	MetricsFile string `envconfig:"METRICS_FILE"`
+}
+
+func getRouter(opt RouterOption) *mux.Router {
+	staticHandler := http.FileServer(http.Dir(opt.StaticDir))
+	deployHandler := http.FileServer(http.Dir(opt.DeployDir))
+
 	rsm := NewRoomStatusManager()
-	sm, err := NewSecretManager("./secret.conf")
+	sm, err := NewSecretManager(opt.SecretFile)
 	if err != nil {
 		panic(err)
 	}
-	mw, err := NewMetricsWriter("metrics.jsonl")
+	mw, err := NewMetricsWriter(opt.MetricsFile)
 	if err != nil {
 		panic(err)
 	}
@@ -105,7 +112,7 @@ func getRouter() *mux.Router {
 		}
 	}).Methods("POST")
 
-	deployFileServer := http.StripPrefix("/deploy/", http.FileServer(deployroot))
+	deployFileServer := http.StripPrefix("/deploy/", deployHandler)
 	router.HandleFunc("/deploy/{name:.*}", func(w http.ResponseWriter, req *http.Request) {
 		hostid := req.Header.Get("X-HOSTID")
 		secret := req.Header.Get("X-SECRET")
@@ -116,8 +123,8 @@ func getRouter() *mux.Router {
 
 		deployFileServer.ServeHTTP(w, req)
 	}).Methods("GET")
-	router.Handle(`/`, http.FileServer(docroot)).Methods("GET")
-	router.Handle(`/{name:.*}`, http.FileServer(docroot)).Methods("GET")
+	router.Handle(`/`, staticHandler).Methods("GET")
+	router.Handle(`/{name:.*}`, staticHandler).Methods("GET")
 
 	return router
 }
@@ -147,7 +154,9 @@ func main() {
 		cancel()
 	}()
 
-	router := getRouter()
+	var opt RouterOption
+	envconfig.Process("TEMVOTE", &opt)
+	router := getRouter(opt)
 	if err := startHttpServer(ctx, router); err != nil {
 		panic(err)
 	}
