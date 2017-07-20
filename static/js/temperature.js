@@ -8,6 +8,7 @@
     "use strict";
     var updateInterval = 10 * 1000;  // 10s
     var status = null;
+    var myvote = null;
     var roomId2RoomName = {
         'kougi201': '講義棟201',
         'kougi202': '講義棟202',
@@ -36,8 +37,9 @@
         xhr.responseType = 'json';
         xhr.onload = function () {
             if (xhr.status === 200 || xhr.status === 302) {
-                status = xhr.response;
-                success(status);
+                status = xhr.response.status;
+                myvote = xhr.response.myvote;
+                success();
             } else {
                 error();
             }
@@ -54,8 +56,9 @@
         xhr.responseType = 'json';
         xhr.onload = function () {
             if (xhr.status === 200 || xhr.status === 302) {
-                status = xhr.response;
-                success(status);
+                status = xhr.response.status;
+                myvote = xhr.response.myvote;
+                success();
             } else {
                 error();
             }
