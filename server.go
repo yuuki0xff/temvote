@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	"github.com/kelseyhightower/envconfig"
 	"io/ioutil"
 	"net/http"
@@ -15,15 +16,23 @@ import (
 )
 
 type RouterOption struct {
-	StaticDir   string `envconfig:"STATIC_DIR"`
-	DeployDir   string `envconfig:"DEPLOY_DIR"`
-	SecretFile  string `envconfig:"SECRET_FILE"`
-	MetricsFile string `envconfig:"METRICS_FILE"`
+	StaticDir    string `envconfig:"STATIC_DIR"`
+	DeployDir    string `envconfig:"DEPLOY_DIR"`
+	SecretFile   string `envconfig:"SECRET_FILE"`
+	MetricsFile  string `envconfig:"METRICS_FILE"`
+	CookieSecret []byte `envconfig:"COOKIE_SECRET"`
+}
+
+type StatusAPIResponse struct {
+	Status *RoomStatus `json:"status"`
+	MyVote *MyVote     `json:"myvote"`
 }
 
 func getRouter(opt RouterOption) *mux.Router {
 	staticHandler := http.FileServer(http.Dir(opt.StaticDir))
 	deployHandler := http.FileServer(http.Dir(opt.DeployDir))
+
+	store := sessions.NewCookieStore(opt.CookieSecret)
 
 	rsm := NewRoomStatusManager()
 	sm, err := NewSecretManager(opt.SecretFile)
@@ -37,15 +46,26 @@ func getRouter(opt RouterOption) *mux.Router {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api/v1/status", func(w http.ResponseWriter, req *http.Request) {
+		var err error
 		w.Header().Set("Cache-Control", "no-store")
+		res := StatusAPIResponse{}
+		sf := func(callback func(r *http.Request, w *http.ResponseWriter, s *sessions.CookieStore)) {
+			callback(req, &w, store)
+		}
 
 		roomId := req.URL.Query().Get("room")
-		stat, err := rsm.GetStatus(roomId)
+		res.Status, err = rsm.GetStatus(roomId)
 		if err != nil {
 			w.WriteHeader(500)
 			return
 		}
-		js, err := json.Marshal(stat)
+		res.MyVote, err = rsm.GetMyVote(sf, roomId)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+
+		js, err := json.Marshal(res)
 		if err != nil {
 			w.WriteHeader(500)
 			return
@@ -56,31 +76,41 @@ func getRouter(opt RouterOption) *mux.Router {
 	}).Methods("GET")
 	router.HandleFunc("/api/v1/status", func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
+		res := StatusAPIResponse{}
+		sf := func(callback func(r *http.Request, w *http.ResponseWriter, s *sessions.CookieStore)) {
+			callback(req, &w, store)
+		}
 
 		roomId := req.URL.Query().Get("room")
 
 		switch req.FormValue("vote") {
 		case "hot":
-			rsm.Vote(roomId, 1, 0)
+			rsm.Vote(sf, roomId, 1, 0)
 		case "cold":
-			rsm.Vote(roomId, 0, 1)
+			rsm.Vote(sf, roomId, 0, 1)
 		default:
 			w.WriteHeader(400)
 			return
 		}
 
-		stat, err := rsm.GetStatus(roomId)
+		res.Status, err = rsm.GetStatus(roomId)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+		res.MyVote, err = rsm.GetMyVote(sf, roomId)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+
+		js, err := json.Marshal(res)
 		if err != nil {
 			w.WriteHeader(500)
 			return
 		}
 
 		w.WriteHeader(200)
-		js, err := json.Marshal(*stat)
-		if err != nil {
-			w.WriteHeader(500)
-			return
-		}
 		w.Write(js)
 	}).Methods("POST")
 
