@@ -102,13 +102,16 @@ func (rs *RoomStatusManager) setter(id string, callback func(*RoomStatus) error)
 }
 
 func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) error {
+	var err error
 	if !(hot == 1 || cold == 1) {
 		return errors.New("Invalid args")
 	}
 
 	sf(func(r *http.Request, w *http.ResponseWriter, store *sessions.CookieStore) {
-		s, err := store.Get(r, getSessionName(id))
+		var s *sessions.Session
+		s, err = store.Get(r, getSessionName(id))
 		if err != nil {
+			err = nil
 			s = sessions.NewSession(store, getSessionName(id))
 		}
 
@@ -130,8 +133,12 @@ func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) erro
 		}
 		s.Values["timestamp"] = time.Now().Unix()
 
-		s.Save(r, *w)
+		err = s.Save(r, *w)
 	})
+
+	if err != nil {
+		return err
+	}
 
 	return rs.setter(id, func(status *RoomStatus) error {
 		status.Hot = uint(int(status.Hot) + hot)

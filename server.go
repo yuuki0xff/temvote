@@ -75,6 +75,7 @@ func getRouter(opt RouterOption) *mux.Router {
 		w.Write(js)
 	}).Methods("GET")
 	router.HandleFunc("/api/v1/status", func(w http.ResponseWriter, req *http.Request) {
+		var err error
 		w.Header().Set("Cache-Control", "no-store")
 		res := StatusAPIResponse{}
 		sf := func(callback func(r *http.Request, w *http.ResponseWriter, s *sessions.CookieStore)) {
@@ -85,11 +86,15 @@ func getRouter(opt RouterOption) *mux.Router {
 
 		switch req.FormValue("vote") {
 		case "hot":
-			rsm.Vote(sf, roomId, 1, 0)
+			err = rsm.Vote(sf, roomId, 1, 0)
 		case "cold":
-			rsm.Vote(sf, roomId, 0, 1)
+			err = rsm.Vote(sf, roomId, 0, 1)
 		default:
 			w.WriteHeader(400)
+			return
+		}
+		if err != nil {
+			w.WriteHeader(500)
 			return
 		}
 
