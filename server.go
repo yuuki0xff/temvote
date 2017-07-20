@@ -20,7 +20,7 @@ type RouterOption struct {
 	DeployDir    string `envconfig:"DEPLOY_DIR"`
 	SecretFile   string `envconfig:"SECRET_FILE"`
 	MetricsFile  string `envconfig:"METRICS_FILE"`
-	CookieSecret []byte `envconfig:"COOKIE_SECRET"`
+	CookieSecret string `envconfig:"COOKIE_SECRET"`
 }
 
 type StatusAPIResponse struct {
@@ -32,7 +32,7 @@ func getRouter(opt RouterOption) *mux.Router {
 	staticHandler := http.FileServer(http.Dir(opt.StaticDir))
 	deployHandler := http.FileServer(http.Dir(opt.DeployDir))
 
-	store := sessions.NewCookieStore(opt.CookieSecret)
+	store := sessions.NewCookieStore([]byte(opt.CookieSecret))
 
 	rsm := NewRoomStatusManager()
 	sm, err := NewSecretManager(opt.SecretFile)
