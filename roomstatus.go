@@ -113,6 +113,10 @@ func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) erro
 		if err != nil {
 			err = nil
 			s = sessions.NewSession(store, getSessionName(id))
+			s.Options = &sessions.Options{
+				Path:     "/",
+				HttpOnly: true,
+			}
 		}
 
 		// 以前の投票を取り消す
