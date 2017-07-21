@@ -1,0 +1,19 @@
+# センサーのThing名
+BME280_thing_name: BME280_sensor1
+
+# センサー読み取り間隔
+# 30 second
+interval_msec: 30000
+
+# ThingWorxへの接続を有効にする。
+enableThingworx: true
+
+# 以下はThingWorxとの接続設定
+thingworxSettings:
+    connection:
+        host: your.thingworx.host
+        port: 443
+        app_key: your-thingworx-application-key
+    tls:
+        encryption: true
+        validate_certificate: false
