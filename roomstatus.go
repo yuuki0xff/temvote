@@ -73,9 +73,14 @@ func (rs *RoomStatusManager) GetMyVote(sf SessionFunc, id string) (*MyVote, erro
 			return
 		}
 
-		vote = &MyVote{
-			Vote:      s.Values["vote"].(string),
-			Timestamp: s.Values["timestamp"].(int64),
+		if s.Values["vote"] == nil || s.Values["timestamp"] == nil {
+			// セッションが存在しない場合
+			vote = nil
+		} else {
+			vote = &MyVote{
+				Vote:      s.Values["vote"].(string),
+				Timestamp: s.Values["timestamp"].(int64),
+			}
 		}
 	})
 	return vote, err
