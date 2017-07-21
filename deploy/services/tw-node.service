@@ -1,0 +1,12 @@
+[Unit]
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/tw-node
+ExecStart=/usr/local/bin/docker-compose up
+ExecStop=/usr/local/bin/docker-compose stop
+
+[Install]
+WantedBy=multi-user.target
+
