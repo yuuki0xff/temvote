@@ -29,7 +29,7 @@ if ! cmp ./services/tw-node.service /etc/systemd/system/tw-node.service; then
     UPDATED_TW_NODE=1
 fi
 
-if [ -n "$UPDATED_TW_NODE" ] || ; then
+if [ -n "$UPDATED_TW_NODE" ]; then
     systemctl enable tw-node
     systemctl restart tw-node
 fi
