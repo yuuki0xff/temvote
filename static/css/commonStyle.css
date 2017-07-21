@@ -104,6 +104,14 @@ div.select_button .cold_button_outer{
     
 }
 
+.select_button .button.hot.active >img{
+    background-color: #fcc;
+}
+
+.select_button .button.cold.active >img{
+    background-color: #ccf;
+}
+
 .current_temperature.message{
     font-size: 10vmin;
     text-align: center;
@@ -112,3 +120,4 @@ div.select_button .cold_button_outer{
 .float_end{
     float: none;
 }
+

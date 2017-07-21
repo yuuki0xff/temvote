@@ -74,6 +74,23 @@
         document.querySelector('.temperature_text').innerText = status.templature;
         document.querySelector('.counter.hot').innerText = status.hot;
         document.querySelector('.counter.cold').innerText = status.cold;
+
+        var hot = document.querySelector('.hot.button');
+        var cold=document.querySelector('.cold.button');
+
+        switch(myvote.vote){
+            case 'hot':
+                hot.classList.add('active');
+                cold.classList.remove('active');
+                break;
+            case 'cold':
+                hot.classList.remove('active');
+                cold.classList.add('active');
+                break;
+            default:
+                hot.classList.remove('active');
+                cold.classList.remove('active');
+        }
     }
 
     getCurrentStatus(update, showErrorMessage);
