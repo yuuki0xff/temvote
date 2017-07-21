@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/boltdb/bolt"
 	"github.com/gorilla/sessions"
 	"net/http"
 	"sync"
@@ -25,6 +27,10 @@ const (
 	SESSION_NAME = "temvote_myvote"
 )
 
+var (
+	BUCKET_NAME = []byte("room_status")
+)
+
 type SessionFunc func(func(r *http.Request, w *http.ResponseWriter, s *sessions.CookieStore))
 
 type RoomStatus struct {
@@ -41,26 +47,88 @@ type MyVote struct {
 }
 
 type RoomStatusManager struct {
+	db      *bolt.DB
 	statMap map[string]*RoomStatus
 }
 
-func NewRoomStatusManager() *RoomStatusManager {
+func NewRoomStatusManager(db *bolt.DB) *RoomStatusManager {
+	// initialize db
+	if err := db.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists(BUCKET_NAME)
+		return err
+	}); err != nil {
+		panic(err)
+	}
+
+	// create RSM
 	rs := &RoomStatusManager{}
+	rs.db = db
 	rs.statMap = make(map[string]*RoomStatus)
-	for _, id := range roomIds {
-		rs.statMap[id] = &RoomStatus{
-			RoomID:     id,
-			Templature: 30.0,
-			Hot:        0,
-			Cold:       0,
-			lock:       sync.RWMutex{},
+	if err := rs.tx(func(bucket *bolt.Bucket) {
+		for _, id := range roomIds {
+			js := bucket.Get([]byte(id))
+			if len(js) == 0 {
+				// 新しい教室なら、デフォルト値を格納しておく
+				rs.statMap[id] = &RoomStatus{
+					RoomID:     id,
+					Templature: -1,
+					Hot:        0,
+					Cold:       0,
+					lock:       sync.RWMutex{},
+				}
+				continue
+			}
+
+			stat := &RoomStatus{
+				lock: sync.RWMutex{},
+			}
+			if err := json.Unmarshal(js, stat); err != nil {
+				panic(err)
+			}
+			rs.statMap[id] = stat
 		}
+	}); err != nil {
+		panic(err)
 	}
 	return rs
 }
 
 func getSessionName(id string) string {
 	return SESSION_NAME + "___" + id
+}
+
+// 読み取り専用のトランザクションを開始する
+func (rs *RoomStatusManager) tx(callback func(*bolt.Bucket)) error {
+	tx, err := rs.db.Begin(false)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	bucket := tx.Bucket(BUCKET_NAME)
+	if bucket == nil {
+		return errors.New(fmt.Sprintf("Bucket is not exists: %s", BUCKET_NAME))
+	}
+	callback(bucket)
+	return nil
+}
+
+// 書き込み可能なトランザクションを開始する
+// callbackがtrueを返せばcommitし、falseを返せばrollbackする。
+func (rs *RoomStatusManager) txW(callback func(*bolt.Bucket) bool) error {
+	tx, err := rs.db.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	bucket := tx.Bucket(BUCKET_NAME)
+	if bucket == nil {
+		return errors.New(fmt.Sprintf("Bucket is not exists: %s", BUCKET_NAME))
+	}
+	if callback(bucket) == false {
+		return nil
+	}
+	tx.Commit()
+	return nil
 }
 
 func (rs *RoomStatusManager) GetMyVote(sf SessionFunc, id string) (*MyVote, error) {
@@ -103,7 +171,20 @@ func (rs *RoomStatusManager) setter(id string, callback func(*RoomStatus) error)
 	}
 	stat.lock.Lock()
 	defer stat.lock.Unlock()
-	return callback(stat)
+	if err := callback(stat); err != nil {
+		return err
+	}
+	if err := rs.txW(func(bucket *bolt.Bucket) bool {
+		js, err := json.Marshal(stat)
+		if err != nil {
+			return false
+		}
+		bucket.Put([]byte(id), js)
+		return true
+	}); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) error {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/boltdb/bolt"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/kelseyhightower/envconfig"
@@ -21,6 +22,7 @@ type RouterOption struct {
 	SecretFile   string `envconfig:"SECRET_FILE"`
 	MetricsFile  string `envconfig:"METRICS_FILE"`
 	CookieSecret string `envconfig:"COOKIE_SECRET"`
+	DBFile       string `envconfig:"DB_FILE"`
 }
 
 type StatusAPIResponse struct {
@@ -28,13 +30,13 @@ type StatusAPIResponse struct {
 	MyVote *MyVote     `json:"myvote"`
 }
 
-func getRouter(opt RouterOption) *mux.Router {
+func getRouter(opt RouterOption, db *bolt.DB) *mux.Router {
 	staticHandler := http.FileServer(http.Dir(opt.StaticDir))
 	deployHandler := http.FileServer(http.Dir(opt.DeployDir))
 
 	store := sessions.NewCookieStore([]byte(opt.CookieSecret))
 
-	rsm := NewRoomStatusManager()
+	rsm := NewRoomStatusManager(db)
 	sm, err := NewSecretManager(opt.SecretFile)
 	if err != nil {
 		panic(err)
@@ -191,7 +193,14 @@ func main() {
 
 	var opt RouterOption
 	envconfig.Process("TEMVOTE", &opt)
-	router := getRouter(opt)
+
+	db, err := bolt.Open(opt.DBFile, 0600, nil)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	router := getRouter(opt, db)
 	if err := startHttpServer(ctx, router); err != nil {
 		panic(err)
 	}
