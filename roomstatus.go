@@ -60,7 +60,7 @@ func NewRoomStatusManager() *RoomStatusManager {
 }
 
 func getSessionName(id string) string {
-	return SESSION_NAME + "/" + id
+	return SESSION_NAME + "___" + id
 }
 
 func (rs *RoomStatusManager) GetMyVote(sf SessionFunc, id string) (*MyVote, error) {
