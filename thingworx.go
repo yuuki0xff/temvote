@@ -29,7 +29,6 @@ func (tw *ThingWorxClient) Properties(name string) (dproxy.Proxy, error) {
 	}
 	defer res.Body.Close()
 	js, err := ioutil.ReadAll(res.Body)
-	fmt.Println(string(js))
 
 	var v interface{}
 	json.Unmarshal(js, &v)
