@@ -249,7 +249,7 @@ func (rs *RoomStatusManager) updateStatusWorker(ctx context.Context) {
 
 	tick := time.NewTicker(INTERVAL)
 	thingworx := ThingWorxClient{
-		URL: "https://yuuki:PhuevJivIlApWi2@academic.cloud.thingworx.com/Thingworx",
+		URL: "https://example.com",
 	}
 
 	for {
