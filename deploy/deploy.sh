@@ -8,15 +8,16 @@ install --compare --owner=root --group=root --mode=600 ./cron.d/deploy /etc/cron
 systemctl restart cron
 
 # install tw-node
+UPDATED_TW_NODE=
 install -d --mode=750 --owner=root --group=daemon /srv/tw-node
 if [ ! -d /srv/tw-node/.git ]; then
     cd /srv/tw-node
     git clone https://github.com/yuuki0xff/tw-node-example .
+    UPDATED_TW_NODE=1
 fi
 # update tw-node
 pushd /srv/tw-node
 git fetch origin master
-UPDATED_TW_NODE=
 if [ "$(git rev-parse master)" != "$(git rev-parse origin/master)" ]; then
     git pull origin master
     UPDATED_TW_NODE=1
