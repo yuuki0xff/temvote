@@ -52,11 +52,12 @@ type MyVote struct {
 }
 
 type RoomStatusManager struct {
-	db      *bolt.DB
-	statMap map[string]*RoomStatus
+	db        *bolt.DB
+	thingworx *ThingWorxClient
+	statMap   map[string]*RoomStatus
 }
 
-func NewRoomStatusManager(db *bolt.DB, ctx context.Context) *RoomStatusManager {
+func NewRoomStatusManager(db *bolt.DB, thingworx *ThingWorxClient, ctx context.Context) *RoomStatusManager {
 	// initialize db
 	if err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists(BUCKET_NAME)
@@ -68,6 +69,7 @@ func NewRoomStatusManager(db *bolt.DB, ctx context.Context) *RoomStatusManager {
 	// create RSM
 	rs := &RoomStatusManager{}
 	rs.db = db
+	rs.thingworx = thingworx
 	rs.statMap = make(map[string]*RoomStatus)
 	if err := rs.tx(func(bucket *bolt.Bucket) {
 		for _, id := range roomIds {
@@ -248,19 +250,15 @@ func (rs *RoomStatusManager) updateStatusWorker(ctx context.Context) {
 	fmt.Println("starting UpdateStatusWorker")
 
 	tick := time.NewTicker(INTERVAL)
-	thingworx := ThingWorxClient{
-		URL: "https://example.com",
-	}
-
 	for {
 		fmt.Println("update status")
 		// room1
-		if err := rs.updateStatus(thingworx, "room1", "Room1_yuuki"); err != nil {
+		if err := rs.updateStatus("room1", "Room1_yuuki"); err != nil {
 			fmt.Println(err)
 		}
 
 		// room2
-		if err := rs.updateStatus(thingworx, "room2", "Room2_yuuki"); err != nil {
+		if err := rs.updateStatus("room2", "Room2_yuuki"); err != nil {
 			fmt.Println(err)
 		}
 
@@ -272,8 +270,8 @@ func (rs *RoomStatusManager) updateStatusWorker(ctx context.Context) {
 	}
 }
 
-func (rs *RoomStatusManager) updateStatus(thingworx ThingWorxClient, roomId, thingName string) error {
-	prop, err := thingworx.Properties(thingName)
+func (rs *RoomStatusManager) updateStatus(roomId, thingName string) error {
+	prop, err := rs.thingworx.Properties(thingName)
 	if err != nil {
 		return err
 	}

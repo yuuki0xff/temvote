@@ -23,6 +23,7 @@ type RouterOption struct {
 	MetricsFile  string `envconfig:"METRICS_FILE"`
 	CookieSecret string `envconfig:"COOKIE_SECRET"`
 	DBFile       string `envconfig:"DB_FILE"`
+	ThingWorxURL string `envconfig:"THINGWORX_URL"`
 }
 
 type StatusAPIResponse struct {
@@ -36,7 +37,11 @@ func getRouter(opt RouterOption, db *bolt.DB, ctx context.Context) *mux.Router {
 
 	store := sessions.NewCookieStore([]byte(opt.CookieSecret))
 
-	rsm := NewRoomStatusManager(db, ctx)
+	thingworx := &ThingWorxClient{
+		URL: opt.ThingWorxURL,
+	}
+
+	rsm := NewRoomStatusManager(db, thingworx, ctx)
 	sm, err := NewSecretManager(opt.SecretFile)
 	if err != nil {
 		panic(err)
