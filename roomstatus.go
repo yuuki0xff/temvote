@@ -12,6 +12,9 @@ import (
 )
 
 var roomIds = []string{
+	"room1",
+	"room2",
+
 	"kougi201",
 	"kougi202",
 	"kougi203",

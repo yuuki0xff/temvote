@@ -10,6 +10,9 @@
     var status = null;
     var myvote = null;
     var roomId2RoomName = {
+        'room1': '研究室1',
+        'room2': '研究室2',
+
         'kougi201': '講義棟201',
         'kougi202': '講義棟202',
         'kougi203': '講義棟203',
