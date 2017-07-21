@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -28,6 +29,7 @@ var roomIds = []string{
 
 const (
 	SESSION_NAME = "temvote_myvote"
+	INTERVAL     = 1 * time.Minute
 )
 
 var (
@@ -54,7 +56,7 @@ type RoomStatusManager struct {
 	statMap map[string]*RoomStatus
 }
 
-func NewRoomStatusManager(db *bolt.DB) *RoomStatusManager {
+func NewRoomStatusManager(db *bolt.DB, ctx context.Context) *RoomStatusManager {
 	// initialize db
 	if err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists(BUCKET_NAME)
@@ -93,6 +95,8 @@ func NewRoomStatusManager(db *bolt.DB) *RoomStatusManager {
 	}); err != nil {
 		panic(err)
 	}
+
+	go rs.updateStatusWorker(ctx)
 	return rs
 }
 
@@ -238,4 +242,50 @@ func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) erro
 		status.Cold = uint(int(status.Cold) + cold)
 		return nil
 	})
+}
+
+func (rs *RoomStatusManager) updateStatusWorker(ctx context.Context) {
+	fmt.Println("starting UpdateStatusWorker")
+
+	tick := time.NewTicker(INTERVAL)
+	thingworx := ThingWorxClient{
+		URL: "https://yuuki:PhuevJivIlApWi2@academic.cloud.thingworx.com/Thingworx",
+	}
+
+	for {
+		fmt.Println("update status")
+		// room1
+		if err := rs.updateStatus(thingworx, "room1", "Room1_yuuki"); err != nil {
+			fmt.Println(err)
+		}
+
+		// room2
+		if err := rs.updateStatus(thingworx, "room2", "Room2_yuuki"); err != nil {
+			fmt.Println(err)
+		}
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-tick.C:
+		}
+	}
+}
+
+func (rs *RoomStatusManager) updateStatus(thingworx ThingWorxClient, roomId, thingName string) error {
+	prop, err := thingworx.Properties(thingName)
+	if err != nil {
+		return err
+	}
+	temp, err := prop.M("temperature").Float64()
+	if err != nil {
+		return err
+	}
+	if err := rs.setter(roomId, func(stat *RoomStatus) error {
+		stat.Templature = float32(temp)
+		return nil
+	}); err != nil {
+		return err
+	}
+	return nil
 }

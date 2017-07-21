@@ -30,13 +30,13 @@ type StatusAPIResponse struct {
 	MyVote *MyVote     `json:"myvote"`
 }
 
-func getRouter(opt RouterOption, db *bolt.DB) *mux.Router {
+func getRouter(opt RouterOption, db *bolt.DB, ctx context.Context) *mux.Router {
 	staticHandler := http.FileServer(http.Dir(opt.StaticDir))
 	deployHandler := http.FileServer(http.Dir(opt.DeployDir))
 
 	store := sessions.NewCookieStore([]byte(opt.CookieSecret))
 
-	rsm := NewRoomStatusManager(db)
+	rsm := NewRoomStatusManager(db, ctx)
 	sm, err := NewSecretManager(opt.SecretFile)
 	if err != nil {
 		panic(err)
@@ -200,7 +200,7 @@ func main() {
 	}
 	defer db.Close()
 
-	router := getRouter(opt, db)
+	router := getRouter(opt, db, ctx)
 	if err := startHttpServer(ctx, router); err != nil {
 		panic(err)
 	}
