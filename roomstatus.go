@@ -135,9 +135,9 @@ func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) erro
 		}
 
 		// 投票結果をCookieに保存
-		if hot != 0 {
+		if hot > 0 {
 			s.Values["vote"] = "hot"
-		} else if cold != 0 {
+		} else if cold > 0 {
 			s.Values["vote"] = "cold"
 		}
 		s.Values["timestamp"] = time.Now().Unix()
