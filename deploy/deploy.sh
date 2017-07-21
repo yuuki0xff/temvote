@@ -32,3 +32,5 @@ if [ -n "$UPDATED_TW_NODE" ] || ; then
     systemctl enable tw-node
     systemctl restart tw-node
 fi
+
+echo "done"

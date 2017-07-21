@@ -56,7 +56,7 @@ function deploy() {
 		mkdir -p $DEPLOY
 		tar xf $DEPLOY.tar.gz -C $DEPLOY
 		pushd $DEPLOY
-		./deploy.sh
+		./deploy.sh | send deploy
 		popd
 	fi
 }
