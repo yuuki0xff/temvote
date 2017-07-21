@@ -11,9 +11,10 @@ systemctl restart cron
 UPDATED_TW_NODE=
 install -d --mode=750 --owner=root --group=daemon /srv/tw-node
 if [ ! -d /srv/tw-node/.git ]; then
-    cd /srv/tw-node
+    pushd /srv/tw-node
     git clone https://github.com/yuuki0xff/tw-node-example .
     UPDATED_TW_NODE=1
+    popd
 fi
 # update tw-node
 pushd /srv/tw-node
