@@ -42,6 +42,7 @@ type RoomStatus struct {
 	RoomID     string  `json:"id"`
 	Templature float32 `json:"templature"`
 	Hot        uint    `json:"hot"`
+	Comfort    uint    `json:"comfort"`
 	Cold       uint    `json:"cold"`
 	lock       sync.RWMutex
 }
@@ -196,9 +197,9 @@ func (rs *RoomStatusManager) setter(id string, callback func(*RoomStatus) error)
 	return nil
 }
 
-func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) error {
+func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, comfort, cold int) error {
 	var err error
-	if !(hot == 1 || cold == 1) {
+	if !(hot == 1 || comfort == 1 || cold == 1) {
 		return errors.New("Invalid args")
 	}
 
@@ -219,6 +220,8 @@ func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) erro
 			switch s.Values["vote"].(string) {
 			case "hot":
 				hot -= 1
+			case "comfort":
+				comfort -= 1
 			case "cold":
 				cold -= 1
 			}
@@ -227,6 +230,8 @@ func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) erro
 		// 投票結果をCookieに保存
 		if hot > 0 {
 			s.Values["vote"] = "hot"
+		} else if comfort > 0 {
+			s.Values["vote"] = "comfort"
 		} else if cold > 0 {
 			s.Values["vote"] = "cold"
 		}
@@ -241,6 +246,7 @@ func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, cold int) erro
 
 	return rs.setter(id, func(status *RoomStatus) error {
 		status.Hot = uint(int(status.Hot) + hot)
+		status.Comfort = uint(int(status.Comfort) + comfort)
 		status.Cold = uint(int(status.Cold) + cold)
 		return nil
 	})

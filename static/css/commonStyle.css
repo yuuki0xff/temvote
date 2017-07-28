@@ -66,46 +66,22 @@ div.select_button{
 }
 
 div.select_button img.button{
-    text-align: center;
-    
-    border-style: solid;
-    border-width: 2px;
-    border-color: #000000;
-    
-    margin-bottom: 0px;
-    margin-top: 0px;
-    
-    width: 43vw;
+    height: 30vw;
 }
-
-a.button{
-    
-}
-
 
 div.select_button span.displayCount{
-    
     font-size: 10vmin;
-    
+
     margin-bottom: 0px;
     margin-top: 0px;
-    
-}
-
-div.select_button .hot_button_outer{
-    
-    float: left;
-    
-}
-
-div.select_button .cold_button_outer{
-    
-    float: right;
-    
 }
 
 .select_button .button.hot.active >img{
     background-color: #fcc;
+}
+
+.select_button .button.comfort.active >img{
+    background-color: #aff;
 }
 
 .select_button .button.cold.active >img{
@@ -115,9 +91,5 @@ div.select_button .cold_button_outer{
 .current_temperature.message{
     font-size: 10vmin;
     text-align: center;
-}
-
-.float_end{
-    float: none;
 }
 

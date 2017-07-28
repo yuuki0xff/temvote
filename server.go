@@ -93,9 +93,11 @@ func getRouter(opt RouterOption, db *bolt.DB, ctx context.Context) *mux.Router {
 
 		switch req.FormValue("vote") {
 		case "hot":
-			err = rsm.Vote(sf, roomId, 1, 0)
+			err = rsm.Vote(sf, roomId, 1, 0, 0)
+		case "comfort":
+			err = rsm.Vote(sf, roomId, 0, 1, 0)
 		case "cold":
-			err = rsm.Vote(sf, roomId, 0, 1)
+			err = rsm.Vote(sf, roomId, 0, 0, 1)
 		default:
 			w.WriteHeader(400)
 			return

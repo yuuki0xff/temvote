@@ -79,19 +79,28 @@
         document.querySelector('.counter.cold').innerText = status.cold;
 
         var hot = document.querySelector('.hot.button');
+        var comfort=document.querySelector('.comfort.button');
         var cold=document.querySelector('.cold.button');
 
         switch(myvote.vote){
             case 'hot':
                 hot.classList.add('active');
+                comfort.classList.remove('active');
+                cold.classList.remove('active');
+                break;
+            case 'comfort':
+                hot.classList.remove('active');
+                comfort.classList.add('active');
                 cold.classList.remove('active');
                 break;
             case 'cold':
                 hot.classList.remove('active');
+                comfort.classList.remove('active');
                 cold.classList.add('active');
                 break;
             default:
                 hot.classList.remove('active');
+                comfort.classList.remove('active');
                 cold.classList.remove('active');
         }
     }
@@ -105,6 +114,9 @@
     // 投票ボタンのアクション
     document.querySelector('.button.hot').addEventListener('click', function () {
         vote('hot', update, showErrorMessage);
+    });
+    document.querySelector('.button.comfort').addEventListener('click', function () {
+        vote('comfort', update, showErrorMessage);
     });
     document.querySelector('.button.cold').addEventListener('click', function () {
         vote('cold', update, showErrorMessage);
