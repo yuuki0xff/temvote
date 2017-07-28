@@ -9,10 +9,10 @@ DEPLOY_TAR_GZ=/srv/deploy.tar.gz
 # configには、下記のファイルが定義されていなければならない。また、環境変数を上書きしてはならない
 # SERVER
 # SECRET_KEY
+# HOSTID
 if [ -f /etc/deploy/config ]; then
 	. /etc/deploy/config
 fi
-HOSTID=$(hostid)
 
 
 function error() {
@@ -23,6 +23,8 @@ function error() {
 # check env
 [ -z "${SERVER:-}" ]     && error 'ERROR: "$SERVER" must not be empty.'
 [ -z "${SECRET_KEY:-}" ] && error 'ERROR: "$SECRET_KEY" must not be empty.'
+[ -z "${HOSTID:-}" ]     && error 'ERROR: "HOSTID" must not be empty.'
+
 
 function send() {
 	TAG=$1
