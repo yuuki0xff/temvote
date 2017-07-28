@@ -30,7 +30,7 @@ function send() {
 	curl -X POST --data-binary @- \
 		-H "X-SECRET: $SECRET_KEY" \
 		-H "X-HOSTID: $HOSTID" \
-		-H "X-TAG: $TAG"
+		-H "X-TAG: $TAG" \
 		-H 'Content-Type: text/plain' \
 		"$URL"
 }
