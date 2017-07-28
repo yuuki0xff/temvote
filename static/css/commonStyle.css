@@ -76,15 +76,15 @@ div.select_button span.displayCount{
     margin-top: 0px;
 }
 
-.select_button .button.hot.active >img{
+.select_button .button.hot.outer.active{
     background-color: #fcc;
 }
 
-.select_button .button.comfort.active >img{
+.select_button .button.comfort.outer.active{
     background-color: #aff;
 }
 
-.select_button .button.cold.active >img{
+.select_button .button.cold.outer.active{
     background-color: #ccf;
 }
 

@@ -76,11 +76,12 @@
     function update() {
         document.querySelector('.temperature_text').innerText = status.templature;
         document.querySelector('.counter.hot').innerText = status.hot;
+        document.querySelector('.counter.comfort').innerText = status.comfort;
         document.querySelector('.counter.cold').innerText = status.cold;
 
-        var hot = document.querySelector('.hot.button');
-        var comfort=document.querySelector('.comfort.button');
-        var cold=document.querySelector('.cold.button');
+        var hot = document.querySelector('.hot.button.outer');
+        var comfort=document.querySelector('.comfort.button.outer');
+        var cold=document.querySelector('.cold.button.outer');
 
         switch(myvote.vote){
             case 'hot':
