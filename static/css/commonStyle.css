@@ -1,12 +1,13 @@
 
 
 body{
-    margin: 5vw;
+    margin: 0;
+    padding: 3vh 3vw;
 }
 
 h1.voteTitle{
   /* voteTitleの最大文字数が7なので、１も自分余裕を持ったサイズに設定 */
-  font-size: 12.5vw; /* = 100/8 */
+  font-size: 12.5vmin; /* = 100/8 */
   
   text-align: center;
   margin-bottom: 0px;
@@ -14,77 +15,59 @@ h1.voteTitle{
   
   width: 100%;
   height: 20%;
-  
-}
-
-
-
-span.hotQuestion{
-  color: #ff0000;
-}
-
-span.coldQuestion{
-  color: #0000ff;
-}
-
-div.select_button .otherwise{
-    
-    font-size: 15vmin;
-    
-
-   
-    margin: 0 5%;
-    
-    margin-bottom: 0;
-    margin-top: 0;
-    
-}
-
-p#drawTemp{
-    
-    font-size:200%;
-    margin: 0 3%;
-    
-    height: 20%;
-    
-    
 }
 
 div.select_button{
     text-align: center;
-    
-    width: 100%;
-    height: 10%;
-    
     white-space: nowrap;
-    
-    margin-bottom: 0px;
-    margin-top: 10px;
+    box-sizing: border-box;
 
     /* floatしている子要素の高さを親要素の高さに含める */
     overflow-y: hidden;
 }
 
-div.select_button img.button{
-    height: 30vw;
+div.select_button > .button > img{
+    height: 20vmin;
+    float: left;
 }
 
 div.select_button span.displayCount{
     font-size: 10vmin;
-
-    margin-bottom: 0px;
-    margin-top: 0px;
+    float: right;
 }
 
-.select_button .button.hot.outer.active{
+.select_button > .button {
+    display: block;
+    width: 90vw;
+    cursor: pointer;
+    margin: 2vh 2vw;
+    background-color: #fff;
+    transition: all 0.2s ease-in-out;
+
+    box-shadow: 0.2vmin 0.2vmin 0.5vmin 0.5vmin #cccccc;
+    border-radius: 0.1vmin;
+
+    /* floatしている子要素の高さを親要素の高さに含める */
+    overflow-y: hidden;
+}
+
+.select_button > .button.active,
+.select_button > .button:hover {
+    box-shadow: 0.5vmin 0.5vmin 1vmin 1vmin #aaaaaa;
+}
+
+.select_button > .button.hot.active,
+.select_button > .button.hot:hover {
     background-color: #fcc;
 }
 
-.select_button .button.comfort.outer.active{
+.select_button > .button.comfort.active,
+.select_button > .button.comfort:hover {
     background-color: #aff;
 }
 
-.select_button .button.cold.outer.active{
+.select_button > .button.cold.active,
+.select_button > .button.cold:hover {
     background-color: #ccf;
 }
 
@@ -93,3 +76,17 @@ div.select_button span.displayCount{
     text-align: center;
 }
 
+.rooms > a {
+    display: block;
+    width: 100%;
+    padding: 0.5em 0;
+    margin: 0.3em 0;
+
+    /*background-color: #bbf;*/
+    text-decoration: none:
+    color: #000;
+}
+
+.rooms > a:hover {
+    background-color: #aaf;
+}

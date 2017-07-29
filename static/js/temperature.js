@@ -64,9 +64,9 @@
         document.querySelector('.counter.comfort').innerText = status.comfort;
         document.querySelector('.counter.cold').innerText = status.cold;
 
-        var hot = document.querySelector('.hot.button.outer');
-        var comfort=document.querySelector('.comfort.button.outer');
-        var cold=document.querySelector('.cold.button.outer');
+        var hot = document.querySelector('.button.hot');
+        var comfort = document.querySelector('.button.comfort');
+        var cold = document.querySelector('.button.cold');
 
         switch(myvote.vote){
             case 'hot':
@@ -107,7 +107,7 @@
     document.querySelector('.button.cold').addEventListener('click', function () {
         vote('cold', update, showErrorMessage);
     });
-    for(var button of document.querySelectorAll('.button')) {
+    for(var button of document.querySelectorAll('.select_button > .button')) {
         button.onclick = function() {return false;};
     }
 })();
