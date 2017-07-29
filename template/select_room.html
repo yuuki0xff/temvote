@@ -12,7 +12,7 @@
     <div class="rooms accordions">
         {{ range $group1, $innerGroups := .RoomGroups }}
             <button>{{ $group1 }}</button>
-            <div>
+            <div class="rooms accordions">
                 {{ range $group2, $ids := $innerGroups }}
                     <button>{{ $group2 }}</button>
                     <div>
