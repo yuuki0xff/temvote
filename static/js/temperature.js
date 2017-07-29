@@ -15,10 +15,6 @@
         searchParams[kv[0]] = kv[1];
     }
 
-    // .templeture_text
-    // .button.hot
-    // .button.cold
-
     function getCurrentStatus(success, error) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/api/v1/status?room=' + roomId);
@@ -67,11 +63,11 @@
         if(status.isConnected) {
             // 不快度指数の求め方はWikipediaより。
             // https://ja.wikipedia.org/wiki/%E4%B8%8D%E5%BF%AB%E6%8C%87%E6%95%B0
-            var t = status.templature;
+            var t = status.temperature;
             var h = status.humidity;
             var discomfortIndex = 0.81 * t + 0.01 * h * (0.99 * t - 14.3) + 46.3;
             statusMsg.classList.add('active');
-            statusMsg.querySelector('.temperature').innerText = parseInt(status.templature, 0);
+            statusMsg.querySelector('.temperature').innerText = parseInt(status.temperature, 0);
             statusMsg.querySelector('.discomfort').innerText = parseInt(discomfortIndex, 0);
             var discomfortClasses = statusMsg.querySelector('.discomfort').classList;
             discomfortClasses.remove('level0');
