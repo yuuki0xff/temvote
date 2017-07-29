@@ -29,7 +29,7 @@ function error() {
 function send() {
 	TAG=$1
 	URL=$SERVER/metrics
-	curl -X POST --data-binary @- \
+	curl -SsL -X POST --data-binary @- \
 		-H "X-SECRET: $SECRET_KEY" \
 		-H "X-HOSTID: $HOSTID" \
 		-H "X-TAG: $TAG" \
@@ -39,7 +39,7 @@ function send() {
 
 function get_file() {
 	URL=$SERVER/deploy/$1
-	curl "$URL" \
+	curl -SsL "$URL" \
 		-H "X-SECRET: $SECRET_KEY" \
 		-H "X-HOSTID: $HOSTID"
 }
