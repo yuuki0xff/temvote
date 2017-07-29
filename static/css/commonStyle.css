@@ -71,9 +71,28 @@ div.select_button span.displayCount{
     background-color: #ccf;
 }
 
-.current_temperature.message{
+.message {
     font-size: 10vmin;
     text-align: center;
+    display: none;
+}
+.message.active {
+    display: inline;
+}
+
+.current_status.message > .discomfort.level0 {
+    color: #fff;
+    background-color: mediumseagreen;
+}
+.current_status.message > .discomfort.level1 {
+    background-color: darkkhaki;
+}
+.current_status.message > .discomfort.level2 {
+    background-color: orange;
+}
+.current_status.message > .discomfort.level3 {
+    color: red;
+    background-color: yellow;
 }
 
 .rooms > a {

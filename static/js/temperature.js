@@ -59,7 +59,35 @@
     }
 
     function update() {
-        document.querySelector('.temperature_text').innerText = status.templature;
+        var statusMsg = document.querySelector('.current_status.message');
+        var errorMsg = document.querySelector('.error.message');
+        statusMsg.classList.remove('active');
+        errorMsg.classList.remove('active');
+
+        if(status.isConnected) {
+            // 不快度指数の求め方はWikipediaより。
+            // https://ja.wikipedia.org/wiki/%E4%B8%8D%E5%BF%AB%E6%8C%87%E6%95%B0
+            var t = status.templature;
+            var h = status.humidity;
+            var discomfortIndex = 0.81 * t + 0.01 * h * (0.99 * t - 14.3) + 46.3;
+            statusMsg.classList.add('active');
+            statusMsg.querySelector('.temperature').innerText = parseInt(status.templature, 0);
+            statusMsg.querySelector('.discomfort').innerText = parseInt(discomfortIndex, 0);
+            var discomfortClasses = statusMsg.querySelector('.discomfort').classList;
+            discomfortClasses.remove('level0');
+            discomfortClasses.remove('level1');
+            discomfortClasses.remove('level2');
+            discomfortClasses.remove('level3');
+
+            discomfortClasses.add(
+                discomfortIndex <= 75 ? 'level0' :
+                discomfortIndex <= 78 ? 'level1' :
+                discomfortIndex <= 80 ? 'level2' : 'level3'
+            );
+        }else{
+            errorMsg.classList.add('active');
+        }
+
         document.querySelector('.counter.hot').innerText = status.hot;
         document.querySelector('.counter.comfort').innerText = status.comfort;
         document.querySelector('.counter.cold').innerText = status.cold;

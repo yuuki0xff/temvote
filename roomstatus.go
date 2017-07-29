@@ -77,12 +77,14 @@ var (
 type SessionFunc func(func(r *http.Request, w *http.ResponseWriter, s *sessions.CookieStore))
 
 type RoomStatus struct {
-	RoomID     string  `json:"id"`
-	Templature float32 `json:"templature"`
-	Hot        uint    `json:"hot"`
-	Comfort    uint    `json:"comfort"`
-	Cold       uint    `json:"cold"`
-	lock       sync.RWMutex
+	RoomID      string  `json:"id"`
+	Templature  float32 `json:"templature"`
+	Humidity    float32 `json:"humidity"`
+	Hot         uint    `json:"hot"`
+	Comfort     uint    `json:"comfort"`
+	Cold        uint    `json:"cold"`
+	IsConnected bool    `json:"isConnected"`
+	lock        sync.RWMutex
 }
 
 type MyVote struct {
@@ -116,11 +118,12 @@ func NewRoomStatusManager(db *bolt.DB, thingworx *ThingWorxClient, ctx context.C
 			if len(js) == 0 {
 				// 新しい教室なら、デフォルト値を格納しておく
 				rs.statMap[id] = &RoomStatus{
-					RoomID:     id,
-					Templature: -1,
-					Hot:        0,
-					Cold:       0,
-					lock:       sync.RWMutex{},
+					RoomID:      id,
+					Templature:  -1,
+					Hot:         0,
+					Cold:        0,
+					IsConnected: false,
+					lock:        sync.RWMutex{},
 				}
 				continue
 			}
@@ -323,8 +326,14 @@ func (rs *RoomStatusManager) updateStatus(roomId, thingName string) error {
 	if err != nil {
 		return err
 	}
+	isConnected, err := prop.M("isConnected").Bool()
+	if err != nil {
+		return err
+	}
+
 	if err := rs.setter(roomId, func(stat *RoomStatus) error {
 		stat.Templature = float32(temp)
+		stat.IsConnected = isConnected
 		return nil
 	}); err != nil {
 		return err
