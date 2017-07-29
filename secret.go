@@ -23,6 +23,10 @@ func NewSecretManager(secretFile string) (*SecretManager, error) {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		line := scanner.Text()
+		if line == "" || strings.HasPrefix(line, "#") {
+			// ignore a empty line or a comment line
+			continue
+		}
 		words := strings.SplitN(line, " ", 2)
 
 		name := strings.TrimSpace(words[0])
