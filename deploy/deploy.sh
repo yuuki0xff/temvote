@@ -49,6 +49,7 @@ if ! cmp ./config/timesynd.conf /etc/systemd/timesyncd.conf; then
     install --compare --owner=root --group=root ./config/timesyncd.conf /etc/systemd/timesyncd.conf
     systemctl restart systemd-timesyncd
 fi
+timedatectl set-ntp true
 systemctl enable systemd-timesyncd
 
 echo "done"
