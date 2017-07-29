@@ -9,26 +9,11 @@
     var updateInterval = 10 * 1000;  // 10s
     var status = null;
     var myvote = null;
-    var roomId2RoomName = {
-        'room1': '研究室1',
-        'room2': '研究室2',
-
-        'kougi201': '講義棟201',
-        'kougi202': '講義棟202',
-        'kougi203': '講義棟203',
-        'kougi204': '講義棟204',
-
-        'kougi301': '講義棟301',
-        'kougi302': '講義棟302',
-        'kougi303': '講義棟303',
-        'kougi304': '講義棟304'
-    };
     var searchParams = {};
     for(var pair of window.location.search.slice(1).split('&')) {
         var kv = pair.split('=');
         searchParams[kv[0]] = kv[1];
     }
-    var roomId = searchParams['room'];
 
     // .templeture_text
     // .button.hot
@@ -124,13 +109,5 @@
     });
     for(var button of document.querySelectorAll('.button')) {
         button.onclick = function() {return false;};
-    }
-
-    //////////////////////////////
-    // 教室名を出力
-    if ('room' in searchParams) {
-        document.querySelector('.room_name_text').innerText = roomId2RoomName[roomId];
-    } else {
-        window.location = 'select_room.html';
     }
 })();

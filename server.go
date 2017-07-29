@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/kelseyhightower/envconfig"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -34,6 +35,10 @@ type StatusAPIResponse struct {
 func getRouter(opt RouterOption, db *bolt.DB, ctx context.Context) *mux.Router {
 	staticHandler := http.FileServer(http.Dir(opt.StaticDir))
 	deployHandler := http.FileServer(http.Dir(opt.DeployDir))
+	tmpl, err := template.ParseGlob("template/*.html")
+	if err != nil {
+		panic(err)
+	}
 
 	store := sessions.NewCookieStore([]byte(opt.CookieSecret))
 
@@ -167,8 +172,36 @@ func getRouter(opt RouterOption, db *bolt.DB, ctx context.Context) *mux.Router {
 
 		deployFileServer.ServeHTTP(w, req)
 	}).Methods("GET")
-	router.Handle(`/`, staticHandler).Methods("GET")
-	router.Handle(`/{name:.*}`, staticHandler).Methods("GET")
+	router.Handle("/", http.RedirectHandler("/select_room.html", 303)).Methods("GET")
+	router.HandleFunc("/vote/{roomid}", func(w http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		roomID := vars["roomid"]
+		roomName := RoomNames[roomID]
+
+		if roomID == "" || roomName == "" {
+			w.WriteHeader(400)
+			return
+		}
+
+		tmpl.ExecuteTemplate(w, "vote.html", &struct {
+			RoomID   string
+			RoomName string
+		}{
+			RoomID:   roomID,
+			RoomName: roomName,
+		})
+
+	}).Methods("GET")
+	router.HandleFunc("/select_room.html", func(w http.ResponseWriter, req *http.Request) {
+		tmpl.ExecuteTemplate(w, "select_room.html", &struct {
+			RoomNames  map[string]string
+			RoomGroups map[string]map[string][]string
+		}{
+			RoomNames:  RoomNames,
+			RoomGroups: RoomGroups,
+		})
+	}).Methods("GET")
+	router.Handle("/{name:.*}", staticHandler).Methods("GET")
 
 	return router
 }

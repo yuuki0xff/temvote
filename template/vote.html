@@ -9,23 +9,23 @@ and open the template in the editor.
         <title>temvote</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="css/commonStyle.css" type="text/css"> 
+        <link rel="stylesheet" href="../css/commonStyle.css" type="text/css">
     </head>
 
     <body>
-        <h1 class="voteTitle"><span class="room_name_text"></span>は…</h1>
+        <h1 class="voteTitle">{{.RoomName}}は…</h1>
 
         <div class="select_button">
             <div class="button hot outer">
-                <a class="button hot" href="#"><img class="button" src="img/hot_button.png" alt="暑いボタン"></a>
+                <a class="button hot" href="#"><img class="button" src="../img/hot_button.png" alt="暑いボタン"></a>
                 <span class="displayCount">[<span class="counter hot"></span>人]</span>
             </div>
             <div class="button comfort outer">
-                <a class="button comfort" href="#"><img class="button" src="img/comfort_button.png" alt="快適"/></a>
+                <a class="button comfort" href="#"><img class="button" src="../img/comfort_button.png" alt="快適"/></a>
                 <span class="displayCount">[<span class="counter comfort"></span>人]</span>
             </div>
             <div class="button cold outer">
-                <a class="button cold" href="#"><img class="button" src="img/cold_button.png" alt="寒いボタン"></a>
+                <a class="button cold" href="#"><img class="button" src="../img/cold_button.png" alt="寒いボタン"></a>
                 <span class="displayCount">[<span class="counter cold"></span>人]</span>
             </div>
         </div>
@@ -34,7 +34,10 @@ and open the template in the editor.
             現在<span class="temperature_text"></span>℃です
         </div>
 
-        <script type="text/javascript" src="js/temperature.js"></script>
+        <script>
+            var roomId = {{.RoomID}}
+        </script>
+        <script type="text/javascript" src="../js/temperature.js"></script>
     </body>
 
 </html>

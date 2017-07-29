@@ -10,23 +10,19 @@
 <body>
     <h1>教室選択画面</h1>
     <div class="rooms accordions">
-        <button>研究室</button>
-        <div>
-            <p><a href="/?room=room1">研究室1</a></p>
-            <p><a href="/?room=room2">研究室2</a></p>
-        </div>
-        <button>2階</button>
-        <div>
-            <p><a href="/?room=kougi201">講義棟201</a></p>
-            <p><a href="/?room=kougi202">講義棟202</a></p>
-            <p><a href="/?room=kougi203">講義棟203</a></p>
-        </div>
-        <button>3階</button>
-        <div>
-            <p><a href="/?room=kougi301">講義棟301</a></p>
-            <p><a href="/?room=kougi302">講義棟302</a></p>
-            <p><a href="/?room=kougi303">講義棟303</a></p>
-        </div>
+        {{ range $group1, $innerGroups := .RoomGroups }}
+            <button>{{ $group1 }}</button>
+            <div>
+                {{ range $group2, $ids := $innerGroups }}
+                    <button>{{ $group2 }}</button>
+                    <div>
+                        {{ range $id := $ids }}
+                            <a href="./vote/{{ $id }}">{{ index $.RoomNames $id }}</a>
+                        {{ end }}
+                    </div>
+                {{ end }}
+            </div>
+        {{ end }}
     </div>
     <script src="js/accordion.js"></script>
 </body>

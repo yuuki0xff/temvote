@@ -27,6 +27,44 @@ var roomIds = []string{
 	"kougi304",
 }
 
+var RoomNames = map[string]string{
+	"room1": "研究室1",
+	"room2": "研究室2",
+
+	"kougi201": "講義棟201",
+	"kougi202": "講義棟202",
+	"kougi203": "講義棟203",
+	"kougi204": "講義棟204",
+
+	"kougi301": "講義棟301",
+	"kougi302": "講義棟302",
+	"kougi303": "講義棟303",
+	"kougi304": "講義棟304",
+}
+
+var RoomGroups = map[string]map[string][]string{
+	"片研": {
+		"11階": {
+			"room1",
+			"room2",
+		},
+	},
+	"講義棟": {
+		"2階": {
+			"kougi201",
+			"kougi202",
+			"kougi203",
+			"kougi204",
+		},
+		"3階": {
+			"kougi301",
+			"kougi302",
+			"kougi303",
+			"kougi304",
+		},
+	},
+}
+
 const (
 	SESSION_NAME = "temvote_myvote"
 	INTERVAL     = 1 * time.Minute
