@@ -1,11 +1,15 @@
 #!/bin/bash
 set -euv
 
-function apt_install(){
-    DEBIAN_FRONTEND=noninteractive apt-get -y \
+function apt-get(){
+    DEBIAN_FRONTEND=noninteractive command apt-get -y \
         -o Dpkg::Options::="--force-confdef" \
         -o Dpkg::Options::="--force-confold" \
-        install "$@"
+        "$@"
+}
+
+function apt_install(){
+    apt-get install "$@"
 }
 
 function exists_all_package(){
@@ -15,10 +19,7 @@ function exists_all_package(){
 function uninstall_if_exists(){
     while (( $# )); do
         if exists_all_package "$1"; then
-            DEBIAN_FRONTEND=noninteractive apt-get -y \
-                -o Dpkg::Options::="--force-confdef" \
-                -o Dpkg::Options::="--force-confold" \
-                purge "$1"
+            apt-get purge "$1"
         fi
         shift
     done
@@ -32,6 +33,7 @@ systemctl restart cron
 
 # uninstall large packages
 uninstall_if_exists wolfram-engine sonic-py scratch 'libreoffice*'
+apt-get autoremove
 
 # install tw-node
 UPDATED_TW_NODE=
