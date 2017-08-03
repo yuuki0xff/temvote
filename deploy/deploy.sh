@@ -8,11 +8,30 @@ function apt_install(){
         install "$@"
 }
 
+function exists_all_package(){
+    dpkg-query -l -- "$@" &>/dev/null
+}
+
+function uninstall_if_exists(){
+    while (( $# )); do
+        if exists_all_package "$1"; then
+            DEBIAN_FRONTEND=noninteractive apt-get -y \
+                -o Dpkg::Options::="--force-confdef" \
+                -o Dpkg::Options::="--force-confold" \
+                purge "$1"
+        fi
+        shift
+    done
+}
+
 install -d --mode=700 /etc/deploy
 install --compare --owner=root --group=root --mode=600 ./version /etc/deploy/version
 install --compare --owner=root --group=root --mode=700 ./manage /usr/local/sbin
 install --compare --owner=root --group=root --mode=600 ./cron.d/deploy /etc/cron.d/deploy
 systemctl restart cron
+
+# uninstall large packages
+uninstall_if_exists wolfram-engine sonic-py scratch 'libreoffice*'
 
 # install tw-node
 UPDATED_TW_NODE=
