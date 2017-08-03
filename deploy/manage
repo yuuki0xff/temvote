@@ -11,13 +11,13 @@ DEPLOY_TAR_GZ=/srv/deploy.tar.gz
 # SECRET_KEY
 # HOSTID
 if [ -f /etc/deploy/config ]; then
-	. /etc/deploy/config
+    . /etc/deploy/config
 fi
 
 
 function error() {
-	echo "$@" >&2
-	exit 1
+    echo "$@" >&2
+    exit 1
 }
 
 # check env
@@ -27,45 +27,45 @@ function error() {
 
 
 function send() {
-	TAG=$1
-	URL=$SERVER/metrics
-	curl -SsL -X POST --data-binary @- \
-		-H "X-SECRET: $SECRET_KEY" \
-		-H "X-HOSTID: $HOSTID" \
-		-H "X-TAG: $TAG" \
-		-H 'Content-Type: text/plain' \
-		"$URL"
+    TAG=$1
+    URL=$SERVER/metrics
+    curl -SsL -X POST --data-binary @- \
+        -H "X-SECRET: $SECRET_KEY" \
+        -H "X-HOSTID: $HOSTID" \
+        -H "X-TAG: $TAG" \
+        -H 'Content-Type: text/plain' \
+        "$URL"
 }
 
 function get_file() {
-	URL=$SERVER/deploy/$1
-	curl -SsL "$URL" \
-		-H "X-SECRET: $SECRET_KEY" \
-		-H "X-HOSTID: $HOSTID"
+    URL=$SERVER/deploy/$1
+    curl -SsL "$URL" \
+        -H "X-SECRET: $SECRET_KEY" \
+        -H "X-HOSTID: $HOSTID"
 }
 
 function send_logs() {
-	cat $CONF/version |send version
-	ip a |send ip
-	docker ps |send docker-ps
-	(systemctl status systemd-timesyncd; echo; timedatectl status) |send systemd-timesyncd
+    cat $CONF/version |send version
+    ip a |send ip
+    docker ps |send docker-ps
+    (systemctl status systemd-timesyncd; echo; timedatectl status) |send systemd-timesyncd
 }
 
 function deploy() {
-	if ! cmp <(get_file latest_version) $CONF/version; then
-		# 最新版では無いことが確認できたので、デプロイスクリプトを実行
-		rm -rf $DEPLOY
-		get_file deploy.tar.gz >$DEPLOY_TAR_GZ
-		mkdir -p $DEPLOY
-		tar xf $DEPLOY.tar.gz -C $DEPLOY
-		pushd $DEPLOY
-		(
+    if ! cmp <(get_file latest_version) $CONF/version; then
+        # 最新版では無いことが確認できたので、デプロイスクリプトを実行
+        rm -rf $DEPLOY
+        get_file deploy.tar.gz >$DEPLOY_TAR_GZ
+        mkdir -p $DEPLOY
+        tar xf $DEPLOY.tar.gz -C $DEPLOY
+        pushd $DEPLOY
+        (
             # デプロイに失敗したら、スクリプトを停止させる。
-		    set -o pipefail
+            set -o pipefail
             (./deploy.sh 2>&1) | send deploy
-		)
-		popd
-	fi
+        )
+        popd
+    fi
 }
 
 "$@" &>$LOG_FILE || send error <$LOG_FILE
