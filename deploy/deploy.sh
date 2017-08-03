@@ -1,6 +1,13 @@
 #!/bin/bash
 set -euv
 
+function apt_install(){
+    DEBIAN_FRONTEND=noninteractive apt-get -y \
+        -o Dpkg::Options::="--force-confdef" \
+        -o Dpkg::Options::="--force-confold" \
+        install "$@"
+}
+
 install -d --mode=700 /etc/deploy
 install --compare --owner=root --group=root --mode=600 ./version /etc/deploy/version
 install --compare --owner=root --group=root --mode=700 ./manage /usr/local/sbin
@@ -44,12 +51,14 @@ if [ -n "$UPDATED_TW_NODE" ]; then
     systemctl restart tw-node
 fi
 
-# install systemd-timesyncd config
-if ! cmp ./config/timesyncd.conf /etc/systemd/timesyncd.conf; then
-    install --compare --owner=root --group=root ./config/timesyncd.conf /etc/systemd/timesyncd.conf
-    systemctl restart systemd-timesyncd
+# disable systemd-timesyncd
+# インストールされているバージョンだと、Timeoutしてしまい時刻合わせが出来なかった。
+systemctl stop systemd-timesyncd
+systemctl disable systemd-timesyncd
+
+# install ntp
+if [ ! -f /usr/sbin/ntpd ]; then
+    apt_install ntp
 fi
-timedatectl set-ntp true
-systemctl enable systemd-timesyncd
 
 echo "done"
