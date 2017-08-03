@@ -59,7 +59,11 @@ function deploy() {
 		mkdir -p $DEPLOY
 		tar xf $DEPLOY.tar.gz -C $DEPLOY
 		pushd $DEPLOY
-		./deploy.sh | send deploy
+		(
+            # デプロイに失敗したら、スクリプトを停止させる。
+		    set -o pipefail
+            (./deploy.sh 2>&1) | send deploy
+		)
 		popd
 	fi
 }
