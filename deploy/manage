@@ -49,7 +49,6 @@ function send_logs() {
     cat $CONF/version |send version
     ip a |send ip
     docker ps |send docker-ps
-    (systemctl status systemd-timesyncd; echo; timedatectl status) |send systemd-timesyncd
 
     opt=()
     if [ -s $JOURNAL_CURSOR ]; then
