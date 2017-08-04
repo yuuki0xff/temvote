@@ -54,8 +54,8 @@ function send_logs() {
     free -h |send memory &
     df -h |send storage &
     w |send w &
-    systemctl list-timers |send systemd-timers &
-    systemctl list-units |send systemd-units &
+    systemctl list-timers --all |send systemd-timers &
+    systemctl list-units --all |send systemd-units &
 
     opt=()
     if [ -s $JOURNAL_CURSOR ]; then
