@@ -63,7 +63,7 @@ function send_logs() {
     if [ -s $JOURNAL_CURSOR ]; then
         opt=("--after-cursor=$(cat $JOURNAL_CURSOR)")
     fi
-    journalctl --show-cursor "${opt[@]}" |tee \
+    journalctl --show-cursor ${opt[@]:-} |tee \
         >(tail -n1 |sed 's/^-- cursor: //' >$JOURNAL_CURSOR) \
         >(send journal-log) \
         >/dev/null &
