@@ -1,0 +1,11 @@
+[Unit]
+Description = Adjust time
+
+[Service]
+Type = oneshot
+ExecStart = /usr/sbin/ntpdate -t 30 ntp.jst.mfeed.ad.jp ntp.nict.jp
+Restart = on-failure
+RestartSec = 30s
+
+[Install]
+WantedBy = network.target

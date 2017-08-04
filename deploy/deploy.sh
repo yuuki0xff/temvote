@@ -77,9 +77,17 @@ fi
 systemctl stop systemd-timesyncd
 systemctl disable systemd-timesyncd
 
-# install ntp
-if [ ! -f /usr/sbin/ntpd ]; then
-    apt_install ntp
+# ntp
+uninstall_if_exists ntp
+apt_install ntpdate
+if \
+    ! cmp ./services/datetime.service /etc/systemd/system/datetime.service ||
+    ! cmp ./services/datetime.timer /etc/systemd/system/datetime.timer; then
+        install --compare --owner=root --group=root --mode=644 ./services/datetime.service /etc/systemd/system/datetime.service
+        install --compare --owner=root --group=root --mode=644 ./services/datetime.timer /etc/systemd/system/datetime.timer
+        systemctl daemon-reload
+        systemctl enable datetime.service datetime.timer
+        systemctl start datetime.service datetime.timer
 fi
 
 echo "done"

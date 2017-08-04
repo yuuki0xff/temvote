@@ -1,0 +1,10 @@
+[Unit]
+Description = Adjust time
+
+[Timer]
+OnBootSec=10
+OnUnitActiveSec = 6h
+RandomizedDelaySec = 10m
+
+[Install]
+WantedBy = timers.target
