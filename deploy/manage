@@ -46,11 +46,11 @@ function get_file() {
 }
 
 function send_logs() {
-    cat $CONF/version |send version
-    ip a |send ip
-    docker ps |send docker-ps
-    systemctl list-timers |send systemd-timers
-    systemctl list-units |send systemd-units
+    cat $CONF/version |send version &
+    ip a |send ip &
+    docker ps |send docker-ps &
+    systemctl list-timers |send systemd-timers &
+    systemctl list-units |send systemd-units &
 
     opt=()
     if [ -s $JOURNAL_CURSOR ]; then
@@ -59,7 +59,8 @@ function send_logs() {
     journalctl --show-cursor "${opt[@]}" |tee \
         >(tail -n1 |sed 's/^-- cursor: //' >$JOURNAL_CURSOR) \
         >(send journal-log) \
-        >/dev/null
+        >/dev/null &
+    wait
 }
 
 function deploy() {
