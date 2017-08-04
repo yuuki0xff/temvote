@@ -78,7 +78,7 @@ systemctl stop systemd-timesyncd
 systemctl disable systemd-timesyncd
 
 # ntp
-uninstall_if_exists ntp
+uninstall_if_exists ntp fake-hwclock
 apt_install ntpdate
 if \
     ! cmp ./services/datetime.service /etc/systemd/system/datetime.service ||
