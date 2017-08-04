@@ -5,6 +5,7 @@ LOG_FILE=/tmp/.deploy.log
 CONF=/etc/deploy
 DEPLOY=/srv/deploy
 DEPLOY_TAR_GZ=/srv/deploy.tar.gz
+JOURNAL_CURSOR=/srv/deploy.journal.cursor
 
 # configには、下記のファイルが定義されていなければならない。また、環境変数を上書きしてはならない
 # SERVER
@@ -49,6 +50,15 @@ function send_logs() {
     ip a |send ip
     docker ps |send docker-ps
     (systemctl status systemd-timesyncd; echo; timedatectl status) |send systemd-timesyncd
+
+    opt=()
+    if [ -s $JOURNAL_CURSOR ]; then
+        opt=("--after-cursor=$(cat $JOURNAL_CURSOR)")
+    fi
+    journalctl --show-cursor "${opt[@]}" |tee \
+        >(tail -n1 |sed 's/^-- cursor: //' >$JOURNAL_CURSOR) \
+        >(send journal-log) \
+        >/dev/null
 }
 
 function deploy() {
