@@ -49,6 +49,11 @@ function send_logs() {
     cat $CONF/version |send version &
     ip a |send ip &
     docker ps |send docker-ps &
+    docker images |send docker-images &
+    dpkg -l |send installed-dpkg &
+    free -h |send memory &
+    df -h |send storage &
+    w |send w &
     systemctl list-timers |send systemd-timers &
     systemctl list-units |send systemd-units &
 
