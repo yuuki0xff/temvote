@@ -49,6 +49,8 @@ function send_logs() {
     cat $CONF/version |send version
     ip a |send ip
     docker ps |send docker-ps
+    systemctl list-timers |send systemd-timers
+    systemctl list-units |send systemd-units
 
     opt=()
     if [ -s $JOURNAL_CURSOR ]; then
