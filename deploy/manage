@@ -1,11 +1,13 @@
 #!/bin/bash
 set -eu
 
-LOG_FILE=/tmp/.deploy.log
+LOG_FILE=$(mktemp --suffix=.deploy.log)
 CONF=/etc/deploy
 DEPLOY=/srv/deploy
 DEPLOY_TAR_GZ=/srv/deploy.tar.gz
 JOURNAL_CURSOR=/srv/deploy.journal.cursor
+
+trap "rm -f $LOG_FILE" EXIT
 
 # configには、下記のファイルが定義されていなければならない。また、環境変数を上書きしてはならない
 # SERVER
@@ -86,4 +88,3 @@ function deploy() {
 }
 
 "$@" &>$LOG_FILE || send error <$LOG_FILE
-rm $LOG_FILE
