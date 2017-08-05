@@ -6,8 +6,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 */10  *   *   *   * root  /usr/local/sbin/manage send_logs
 3,32  *   *   *   * root  /usr/local/sbin/manage deploy
 
-# restart tw-node if it is crashed
-*/10  *   *   *   * root  [ -n $(journalctl -b0 -n200 |fgrep -e '[Error]' -e 'stacktrace') ] && systemctl restart tw-node
+# reboot if it is crashed
+# Dockerコンテナを再起動出来ない問題の回避策として、システムをリブートする。
+*/10  *   *   *   * root  [ -z $(journalctl -b0 -n200 |fgrep -e '[Error]' -e 'stacktrace') ] || (sleep 30; reboot)
 
 # 04:13 JST
 13   19   *   *   * root  systemctl restart tw-node
