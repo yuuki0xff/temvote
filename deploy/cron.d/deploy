@@ -1,10 +1,13 @@
 
-SHELL=/bin/sh
+SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # m   h dom mon dow use   command
 */10  *   *   *   * root  /usr/local/sbin/manage send_logs
 3,32  *   *   *   * root  /usr/local/sbin/manage deploy
+
+# restart tw-node if it is crashed
+*/10  *   *   *   * root  [ -n $(journalctl -b0 -n200 |fgrep -e '[Error]' -e 'stacktrace') ] && systemctl restart tw-node
 
 # 04:13 JST
 13   19   *   *   * root  systemctl restart tw-node
