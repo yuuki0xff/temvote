@@ -5,6 +5,8 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 # m   h dom mon dow use   command
 */10  *   *   *   * root  /usr/local/sbin/manage send_logs
 3,32  *   *   *   * root  /usr/local/sbin/manage deploy
-13    4   *   *   * root  systemctl restart tw-node
+
+# 04:13 JST
+13   19   *   *   * root  systemctl restart tw-node
 
 # vim: ft=crontab
