@@ -61,7 +61,7 @@
         errorMsg.classList.remove('active');
 
         if(status.isConnected) {
-            // 不快度指数の求め方はWikipediaより。
+            // 不快指数の求め方はWikipediaより。
             // https://ja.wikipedia.org/wiki/%E4%B8%8D%E5%BF%AB%E6%8C%87%E6%95%B0
             var t = status.temperature;
             var h = status.humidity;
