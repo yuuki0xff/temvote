@@ -64,6 +64,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 
 		tx, err := rsm.GetTx(w, req)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
@@ -72,22 +73,26 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		strRoomID := req.URL.Query().Get("room")
 		roomID, err := StringToRoomID(strRoomID)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "invalid id", http.StatusBadRequest)
 			return
 		}
 		res.Status, err = tx.GetStatus(roomID)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
 		res.MyVote, err = tx.GetMyVote(roomID)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
 
 		js, err := json.Marshal(res)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "json encode error", http.StatusInternalServerError)
 			return
 		}
@@ -103,6 +108,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 
 		tx, err := rsm.GetTx(w, req)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
@@ -111,6 +117,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		strRoomID := req.URL.Query().Get("room")
 		roomID, err := StringToRoomID(strRoomID)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "invalid id", http.StatusBadRequest)
 			return
 		}
@@ -126,23 +133,27 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		}
 		err = tx.Vote(roomID, choice)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
 
 		res.Status, err = tx.GetStatus(roomID)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
 		res.MyVote, err = tx.GetMyVote(roomID)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
 
 		js, err := json.Marshal(res)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
@@ -164,6 +175,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		tag := req.Header.Get("X-TAG")
 		rawBody, err := ioutil.ReadAll(req.Body)
 		if err != nil {
+			log.Println("ERROR:", err)
 			w.WriteHeader(500)
 			println(err.Error(), req.ContentLength)
 			return
@@ -175,6 +187,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 			Body:      string(rawBody),
 			Timestamp: time.Now().Unix(),
 		}); err != nil {
+			log.Println("ERROR:", err)
 			w.WriteHeader(500)
 			println(err.Error())
 			return
@@ -196,6 +209,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 	router.HandleFunc("/vote/{roomid}", func(w http.ResponseWriter, req *http.Request) {
 		tx, err := rsm.GetTx(w, req)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
@@ -211,6 +225,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 
 		roomName, err := tx.GetRoomName(roomID)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
@@ -227,6 +242,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 	router.HandleFunc("/select_room.html", func(w http.ResponseWriter, req *http.Request) {
 		tx, err := rsm.GetTx(w, req)
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
@@ -234,6 +250,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 
 		names, groups, err := tx.GetAllRoomsInfo()
 		if err != nil {
+			log.Println("ERROR:", err)
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
