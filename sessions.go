@@ -44,7 +44,7 @@ func GetSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) *Session {
 	}
 
 	row := tx.QueryRow(`
-		SELECT secret_sha256 FROM s
+		SELECT secret_sha256 FROM session
 		WHERE session_id=? AND expire>=?
 	`, id, time.Now())
 	var hashedSecret string
@@ -68,7 +68,7 @@ func NewSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) (*Session,
 	secretSHA256 := sha256.Sum256([]byte(secret))
 
 	if _, err := tx.Exec(`
-		INSERT INTO s(
+		INSERT INTO session(
 			secret_sha256,
 			timestamp
 		) VALUES (?, ?)`,
