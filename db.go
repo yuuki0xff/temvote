@@ -53,7 +53,7 @@ func (v *Vote) UpdateChoice(tx *sql.Tx, choice VoteChoice) error {
 
 type RoomID uint64
 type BuildingName string
-type FloorID uint
+type FloorID int64
 
 type Room struct {
 	RoomID       RoomID
