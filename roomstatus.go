@@ -213,7 +213,7 @@ func (rst *RoomStatusTx) GetAllRoomsInfo() (names RoomNameMap, groups RoomGroupM
 			var bname BuildingName
 			var floor FloorID
 			var id RoomID
-			if err = rows.Scan(&bname, &floor, &id); err != nil {
+			if err = rows.Scan((*string)(&bname), &floor, &id); err != nil {
 				return
 			}
 
