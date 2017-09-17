@@ -1,6 +1,5 @@
 INSERT INTO room (building_name, floor, name) VALUES
   ('片柳研究所棟', 11, 'テストルーム1'),
-  ('片柳研究所棟', 11, 'テストルーム2'),
 
   ('講義棟', 2, '講義棟201'),
   ('講義棟', 2, '講義棟202'),
@@ -14,4 +13,4 @@ INSERT INTO room (building_name, floor, name) VALUES
 
 INSERT INTO thing (room_id, thing_name) VALUES
   (1, 'Room1_yuuki'),
-  (2, 'Room2_yuuki');
+  (1, 'Room2_yuuki');
