@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/boltdb/bolt"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
 	"github.com/kelseyhightower/envconfig"
 	"html/template"
 	"io/ioutil"
@@ -23,7 +23,8 @@ type RouterOption struct {
 	SecretFile   string `envconfig:"SECRET_FILE"`
 	MetricsFile  string `envconfig:"METRICS_FILE"`
 	CookieSecret string `envconfig:"COOKIE_SECRET"`
-	DBFile       string `envconfig:"DB_FILE"`
+	DBDriver     string `envconfig:"DB_DRIVER"`
+	DBUrl        string `envconfig:"DB_URL"`
 	ThingWorxURL string `envconfig:"THINGWORX_URL"`
 }
 
@@ -32,15 +33,13 @@ type StatusAPIResponse struct {
 	MyVote *MyVote     `json:"myvote"`
 }
 
-func getRouter(opt RouterOption, db *bolt.DB, ctx context.Context) *mux.Router {
+func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 	staticHandler := http.FileServer(http.Dir(opt.StaticDir))
 	deployHandler := http.FileServer(http.Dir(opt.DeployDir))
 	tmpl, err := template.ParseGlob("template/*.html")
 	if err != nil {
 		panic(err)
 	}
-
-	store := sessions.NewCookieStore([]byte(opt.CookieSecret))
 
 	thingworx := &ThingWorxClient{
 		URL: opt.ThingWorxURL,
@@ -59,27 +58,37 @@ func getRouter(opt RouterOption, db *bolt.DB, ctx context.Context) *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/api/v1/status", func(w http.ResponseWriter, req *http.Request) {
 		var err error
-		w.Header().Set("Cache-Control", "no-store")
-		res := StatusAPIResponse{}
-		sf := func(callback func(r *http.Request, w *http.ResponseWriter, s *sessions.CookieStore)) {
-			callback(req, &w, store)
-		}
+		var res StatusAPIResponse
 
-		roomId := req.URL.Query().Get("room")
-		res.Status, err = rsm.GetStatus(roomId)
+		w.Header().Set("Cache-Control", "no-store")
+
+		tx, err := rsm.GetTx(w, req)
 		if err != nil {
-			w.WriteHeader(500)
+			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
-		res.MyVote, err = rsm.GetMyVote(sf, roomId)
+		defer tx.Rollback()
+
+		strRoomID := req.URL.Query().Get("room")
+		roomID, err := StringToRoomID(strRoomID)
 		if err != nil {
-			w.WriteHeader(500)
+			http.Error(w, "invalid id", http.StatusBadRequest)
+			return
+		}
+		res.Status, err = tx.GetStatus(roomID)
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+		res.MyVote, err = tx.GetMyVote(roomID)
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
 
 		js, err := json.Marshal(res)
 		if err != nil {
-			w.WriteHeader(500)
+			http.Error(w, "json encode error", http.StatusInternalServerError)
 			return
 		}
 
@@ -88,47 +97,58 @@ func getRouter(opt RouterOption, db *bolt.DB, ctx context.Context) *mux.Router {
 	}).Methods("GET")
 	router.HandleFunc("/api/v1/status", func(w http.ResponseWriter, req *http.Request) {
 		var err error
+		var res StatusAPIResponse
+
 		w.Header().Set("Cache-Control", "no-store")
-		res := StatusAPIResponse{}
-		sf := func(callback func(r *http.Request, w *http.ResponseWriter, s *sessions.CookieStore)) {
-			callback(req, &w, store)
+
+		tx, err := rsm.GetTx(w, req)
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+		defer tx.Rollback()
+
+		strRoomID := req.URL.Query().Get("room")
+		roomID, err := StringToRoomID(strRoomID)
+		if err != nil {
+			http.Error(w, "invalid id", http.StatusBadRequest)
+			return
 		}
 
-		roomId := req.URL.Query().Get("room")
-
-		switch req.FormValue("vote") {
-		case "hot":
-			err = rsm.Vote(sf, roomId, 1, 0, 0)
-		case "comfort":
-			err = rsm.Vote(sf, roomId, 0, 1, 0)
-		case "cold":
-			err = rsm.Vote(sf, roomId, 0, 0, 1)
+		choice := VoteChoice(req.FormValue("vote"))
+		switch choice {
+		case Hot:
+		case Comfort:
+		case Cold:
 		default:
-			w.WriteHeader(400)
+			http.Error(w, "invalid parameter: vote", http.StatusBadRequest)
 			return
 		}
+		err = tx.Vote(roomID, choice)
 		if err != nil {
-			w.WriteHeader(500)
+			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
 
-		res.Status, err = rsm.GetStatus(roomId)
+		res.Status, err = tx.GetStatus(roomID)
 		if err != nil {
-			w.WriteHeader(500)
+			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
-		res.MyVote, err = rsm.GetMyVote(sf, roomId)
+		res.MyVote, err = tx.GetMyVote(roomID)
 		if err != nil {
-			w.WriteHeader(500)
+			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
 
 		js, err := json.Marshal(res)
 		if err != nil {
-			w.WriteHeader(500)
+			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
 
+		tx.Commit()
+		tx.s.ExtendExpiration()
 		w.WriteHeader(200)
 		w.Write(js)
 	}).Methods("POST")
@@ -174,17 +194,29 @@ func getRouter(opt RouterOption, db *bolt.DB, ctx context.Context) *mux.Router {
 	}).Methods("GET")
 	router.Handle("/", http.RedirectHandler("/select_room.html", 303)).Methods("GET")
 	router.HandleFunc("/vote/{roomid}", func(w http.ResponseWriter, req *http.Request) {
-		vars := mux.Vars(req)
-		roomID := vars["roomid"]
-		roomName := RoomNames[roomID]
+		tx, err := rsm.GetTx(w, req)
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+		defer tx.Rollback()
 
-		if roomID == "" || roomName == "" {
-			w.WriteHeader(400)
+		vars := mux.Vars(req)
+		strRoomID := vars["roomid"]
+		roomID, err := StringToRoomID(strRoomID)
+		if err != nil {
+			http.Error(w, "invalid roomid", http.StatusBadRequest)
+			return
+		}
+
+		roomName, err := tx.GetRoomName(roomID)
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
 
 		tmpl.ExecuteTemplate(w, "vote.html", &struct {
-			RoomID   string
+			RoomID   RoomID
 			RoomName string
 		}{
 			RoomID:   roomID,
@@ -193,12 +225,25 @@ func getRouter(opt RouterOption, db *bolt.DB, ctx context.Context) *mux.Router {
 
 	}).Methods("GET")
 	router.HandleFunc("/select_room.html", func(w http.ResponseWriter, req *http.Request) {
+		tx, err := rsm.GetTx(w, req)
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+		defer tx.Rollback()
+
+		names, groups, err := tx.GetAllRoomsInfo()
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+
 		tmpl.ExecuteTemplate(w, "select_room.html", &struct {
-			RoomNames  map[string]string
-			RoomGroups map[string]map[string][]string
+			RoomNames  RoomNameMap
+			RoomGroups RoomGroupMap
 		}{
-			RoomNames:  RoomNames,
-			RoomGroups: RoomGroups,
+			RoomNames:  names,
+			RoomGroups: groups,
 		})
 	}).Methods("GET")
 	router.Handle("/{name:.*}", staticHandler).Methods("GET")
@@ -234,7 +279,7 @@ func main() {
 	var opt RouterOption
 	envconfig.Process("TEMVOTE", &opt)
 
-	db, err := bolt.Open(opt.DBFile, 0600, nil)
+	db, err := sql.Open(opt.DBDriver, opt.DBUrl)
 	if err != nil {
 		panic(err)
 	}

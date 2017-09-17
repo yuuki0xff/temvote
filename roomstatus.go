@@ -2,310 +2,259 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
+	"database/sql"
 	"fmt"
-	"github.com/boltdb/bolt"
-	"github.com/gorilla/sessions"
 	"net/http"
 	"sync"
 	"time"
 )
 
-var roomIds = []string{
-	"room1",
-	"room2",
-
-	"kougi201",
-	"kougi202",
-	"kougi203",
-	"kougi204",
-
-	"kougi301",
-	"kougi302",
-	"kougi303",
-	"kougi304",
-}
-
-var RoomNames = map[string]string{
-	"room1": "研究室1",
-	"room2": "研究室2",
-
-	"kougi201": "講義棟201",
-	"kougi202": "講義棟202",
-	"kougi203": "講義棟203",
-	"kougi204": "講義棟204",
-
-	"kougi301": "講義棟301",
-	"kougi302": "講義棟302",
-	"kougi303": "講義棟303",
-	"kougi304": "講義棟304",
-}
-
-var RoomGroups = map[string]map[string][]string{
-	"片研": {
-		"11階": {
-			"room1",
-			"room2",
-		},
-	},
-	"講義棟": {
-		"2階": {
-			"kougi201",
-			"kougi202",
-			"kougi203",
-			"kougi204",
-		},
-		"3階": {
-			"kougi301",
-			"kougi302",
-			"kougi303",
-			"kougi304",
-		},
-	},
-}
+type RoomNameMap map[RoomID]string
+type RoomGroupMap map[BuildingName]map[FloorID][]RoomID
 
 const (
-	SESSION_NAME = "temvote_myvote"
-	INTERVAL     = 1 * time.Minute
+	INTERVAL = 1 * time.Minute
 )
-
-var (
-	BUCKET_NAME = []byte("room_status")
-)
-
-type SessionFunc func(func(r *http.Request, w *http.ResponseWriter, s *sessions.CookieStore))
 
 type RoomStatus struct {
-	RoomID      string  `json:"id"`
-	Temperature float32 `json:"temperature"`
-	Humidity    float32 `json:"humidity"`
-	Hot         uint    `json:"hot"`
-	Comfort     uint    `json:"comfort"`
-	Cold        uint    `json:"cold"`
-	IsConnected bool    `json:"isConnected"`
-	lock        sync.RWMutex
+	RoomID  RoomID         `json:"id"`
+	Sensors []SensorStatus `json:"sensors"`
+
+	Hot     uint64 `json:"hot"`
+	Comfort uint64 `json:"comfort"`
+	Cold    uint64 `json:"cold"`
+	lock    sync.RWMutex
 }
 
 type MyVote struct {
-	Vote      string `json:"vote"`
-	Timestamp int64  `json:"timestamp"`
+	Vote      VoteChoice `json:"vote"`
+	Timestamp int64      `json:"timestamp"`
 }
 
 type RoomStatusManager struct {
-	db        *bolt.DB
+	db        *sql.DB
 	thingworx *ThingWorxClient
-	statMap   map[string]*RoomStatus
+
+	sensorCache map[RoomID]map[ThingName]SensorStatus
+	cacheLock   sync.RWMutex
 }
 
-func NewRoomStatusManager(db *bolt.DB, thingworx *ThingWorxClient, ctx context.Context) *RoomStatusManager {
-	// initialize db
-	if err := db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists(BUCKET_NAME)
-		return err
-	}); err != nil {
-		panic(err)
-	}
+type RoomStatusTx struct {
+	rsm *RoomStatusManager
+	tx  *sql.Tx
+	s   *Session
+}
 
+type SensorStatus struct {
+	Temperature float64 `json:"temperature"`
+	Humidity    float64 `json:"humidity"`
+	IsConnected bool    `json:"isConnected"`
+
+	expire time.Time
+}
+
+func NewRoomStatusManager(db *sql.DB, thingworx *ThingWorxClient, ctx context.Context) *RoomStatusManager {
 	// create RSM
 	rs := &RoomStatusManager{}
 	rs.db = db
 	rs.thingworx = thingworx
-	rs.statMap = make(map[string]*RoomStatus)
-	if err := rs.tx(func(bucket *bolt.Bucket) {
-		for _, id := range roomIds {
-			js := bucket.Get([]byte(id))
-			if len(js) == 0 {
-				// 新しい教室なら、デフォルト値を格納しておく
-				rs.statMap[id] = &RoomStatus{
-					RoomID:      id,
-					Temperature: -1,
-					Hot:         0,
-					Cold:        0,
-					IsConnected: false,
-					lock:        sync.RWMutex{},
-				}
-				continue
-			}
+	rs.sensorCache = make(map[RoomID]map[ThingName]SensorStatus)
 
-			stat := &RoomStatus{
-				lock: sync.RWMutex{},
-			}
-			if err := json.Unmarshal(js, stat); err != nil {
-				panic(err)
-			}
-			rs.statMap[id] = stat
-		}
-	}); err != nil {
-		panic(err)
-	}
-
-	go rs.updateStatusWorker(ctx)
+	go rs.cacheUpdater(ctx)
 	return rs
 }
 
-func getSessionName(id string) string {
-	return SESSION_NAME + "___" + id
-}
-
-// 読み取り専用のトランザクションを開始する
-func (rs *RoomStatusManager) tx(callback func(*bolt.Bucket)) error {
-	tx, err := rs.db.Begin(false)
+func (rsm *RoomStatusManager) GetTx(w http.ResponseWriter, req *http.Request) (*RoomStatusTx, error) {
+	tx, err := rsm.db.Begin()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer tx.Rollback()
-	bucket := tx.Bucket(BUCKET_NAME)
-	if bucket == nil {
-		return errors.New(fmt.Sprintf("Bucket is not exists: %s", BUCKET_NAME))
-	}
-	callback(bucket)
-	return nil
+	s := GetSession(w, req, tx)
+	return &RoomStatusTx{
+		rsm: rsm,
+		tx:  tx,
+		s:   s,
+	}, nil
 }
 
-// 書き込み可能なトランザクションを開始する
-// callbackがtrueを返せばcommitし、falseを返せばrollbackする。
-func (rs *RoomStatusManager) txW(callback func(*bolt.Bucket) bool) error {
-	tx, err := rs.db.Begin(true)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	bucket := tx.Bucket(BUCKET_NAME)
-	if bucket == nil {
-		return errors.New(fmt.Sprintf("Bucket is not exists: %s", BUCKET_NAME))
-	}
-	if callback(bucket) == false {
-		return nil
-	}
-	tx.Commit()
-	return nil
+func (rst *RoomStatusTx) Rollback() error {
+	return rst.tx.Rollback()
 }
 
-func (rs *RoomStatusManager) GetMyVote(sf SessionFunc, id string) (*MyVote, error) {
-	var err error
-	var vote *MyVote
+func (rst *RoomStatusTx) Commit() error {
+	return rst.tx.Commit()
+}
 
-	sf(func(r *http.Request, w *http.ResponseWriter, store *sessions.CookieStore) {
-		s, err := store.Get(r, getSessionName(id))
-		if err != nil {
+func (rst *RoomStatusTx) GetRoomName(id RoomID) (name string, err error) {
+	err = rst.tx.QueryRow(
+		`SELECT name FROM room
+		WHERE room_id=?`,
+		id,
+	).Scan(&name)
+	return
+}
+
+// 投票内容を取得する。未投票の場合はnilを返す
+func (rst *RoomStatusTx) GetMyVote(id RoomID) (vote *MyVote, err error) {
+	var v Vote
+	if err = rst.tx.QueryRow(
+		`SELECT choice, timestamp FROM vote
+			WHERE session_id=? AND room_id=?`,
+		rst.s.SessionID, id,
+	).Scan(&v.Choice, &v.Timestamp); err != nil {
+		if err == sql.ErrNoRows {
+			// 未投票の状態。
+			err = nil
 			return
 		}
+		return
+	}
 
-		if s.Values["vote"] == nil || s.Values["timestamp"] == nil {
-			// セッションが存在しない場合
-			vote = nil
-		} else {
-			vote = &MyVote{
-				Vote:      s.Values["vote"].(string),
-				Timestamp: s.Values["timestamp"].(int64),
-			}
-		}
-	})
+	vote = &MyVote{
+		Vote:      v.Choice,
+		Timestamp: v.Timestamp.Unix(),
+	}
 	return vote, err
 }
 
-func (rs *RoomStatusManager) GetStatus(id string) (*RoomStatus, error) {
-	stat := rs.statMap[id]
-	if stat == nil {
-		return nil, errors.New(fmt.Sprintf(`invalid id: "%s"`, id))
+func (rst *RoomStatusTx) GetStatus(id RoomID) (*RoomStatus, error) {
+	rs := &RoomStatus{
+		RoomID: id,
 	}
 
-	var newStat = *stat
-	return &newStat, nil
-}
-
-func (rs *RoomStatusManager) setter(id string, callback func(*RoomStatus) error) error {
-	stat := rs.statMap[id]
-	if stat == nil {
-		return nil
-	}
-	stat.lock.Lock()
-	defer stat.lock.Unlock()
-	if err := callback(stat); err != nil {
-		return err
-	}
-	if err := rs.txW(func(bucket *bolt.Bucket) bool {
-		js, err := json.Marshal(stat)
-		if err != nil {
-			return false
-		}
-		bucket.Put([]byte(id), js)
-		return true
-	}); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (rs *RoomStatusManager) Vote(sf SessionFunc, id string, hot, comfort, cold int) error {
-	var err error
-	if !(hot == 1 || comfort == 1 || cold == 1) {
-		return errors.New("Invalid args")
+	var ok bool
+	rs.Sensors, ok = rst.rsm.getSensorStatusFromCache(id)
+	if !ok {
+		// センサーの状態を更新できていない状態。
+		rs.Sensors = []SensorStatus{}
 	}
 
-	sf(func(r *http.Request, w *http.ResponseWriter, store *sessions.CookieStore) {
-		var s *sessions.Session
-		s, err = store.Get(r, getSessionName(id))
-		if err != nil {
-			err = nil
-			s = sessions.NewSession(store, getSessionName(id))
-			s.Options = &sessions.Options{
-				Path:     "/",
-				HttpOnly: true,
-			}
-		}
-
-		// 以前の投票を取り消す
-		if s.Values["vote"] != nil {
-			switch s.Values["vote"].(string) {
-			case "hot":
-				hot -= 1
-			case "comfort":
-				comfort -= 1
-			case "cold":
-				cold -= 1
-			}
-		}
-
-		// 投票結果をCookieに保存
-		if hot > 0 {
-			s.Values["vote"] = "hot"
-		} else if comfort > 0 {
-			s.Values["vote"] = "comfort"
-		} else if cold > 0 {
-			s.Values["vote"] = "cold"
-		}
-		s.Values["timestamp"] = time.Now().Unix()
-
-		err = s.Save(r, *w)
-	})
-
+	rows, err := rst.tx.Query(
+		`SELECT choice, count(vote_id) FROM vote
+		WHERE room_id=?
+		GROUP BY choice`,
+		id,
+	)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	return rs.setter(id, func(status *RoomStatus) error {
-		status.Hot = uint(int(status.Hot) + hot)
-		status.Comfort = uint(int(status.Comfort) + comfort)
-		status.Cold = uint(int(status.Cold) + cold)
-		return nil
-	})
+	for rows.Next() {
+		var choice VoteChoice
+		var count uint64
+		if err := rows.Scan(&choice, &count); err != nil {
+			return nil, err
+		}
+		switch choice {
+		case Hot:
+			rs.Hot = count
+		case Comfort:
+			rs.Comfort = count
+		case Cold:
+			rs.Cold = count
+		}
+	}
+	return rs, nil
 }
 
-func (rs *RoomStatusManager) updateStatusWorker(ctx context.Context) {
+func (rst *RoomStatusTx) Vote(id RoomID, choice VoteChoice) error {
+	vote := Vote{
+		RoomID: id,
+		S:      rst.s,
+	}
+
+	if err := rst.tx.QueryRow(
+		`SELECT vote_id FROM vote
+		WHERE session_id=? AND room_id=?`,
+		rst.s.SessionID, id,
+	).Scan(&vote.VoteID); err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			// 未投票であることを表す、0を代入
+			vote.VoteID = VoteID(0)
+		default:
+			return err
+		}
+	}
+
+	return vote.UpdateChoice(rst.tx, choice)
+}
+
+func (rst *RoomStatusTx) GetAllRoomsInfo() (names RoomNameMap, groups RoomGroupMap, err error) {
+	// NOTE: roomテーブルの行数は少ないことを想定しているため、テーブルスキャンをしている。
+	{
+		names = make(RoomNameMap)
+		var rows *sql.Rows
+		rows, err = rst.tx.Query(`
+			SELECT room_id, name FROM room
+		`)
+		if err != nil {
+			return
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var id RoomID
+			var name string
+			if err = rows.Scan(&id, &name); err != nil {
+				return
+			}
+			names[id] = name
+		}
+	}
+
+	{
+		groups = make(RoomGroupMap)
+		var rows *sql.Rows
+		rows, err = rst.tx.Query(`
+			SELECT building_name, floor, room_id FROM room
+			GROUP BY building_name, floor, room_id
+		`)
+		defer rows.Close()
+		for rows.Next() {
+			var bname BuildingName
+			var floor FloorID
+			var id RoomID
+			if err = rows.Scan(&bname, &floor, &id); err != nil {
+				return
+			}
+
+			if _, ok := groups[bname]; !ok {
+				groups[bname] = make(map[FloorID][]RoomID)
+			}
+			if _, ok := groups[bname][floor]; !ok {
+				groups[bname][floor] = make([]RoomID, 0)
+			}
+			groups[bname][floor] = append(groups[bname][floor], id)
+		}
+	}
+	return
+}
+
+func (rsm *RoomStatusManager) getSensorStatusFromCache(id RoomID) ([]SensorStatus, bool) {
+	rsm.cacheLock.RLock()
+	defer rsm.cacheLock.RUnlock()
+
+	cache, ok := rsm.sensorCache[id]
+	if ok {
+		array := make([]SensorStatus, 0, len(cache))
+		for i := range cache {
+			if cache[i].expire.After(time.Now()) {
+				array = append(array, cache[i])
+			}
+		}
+		return array, len(array) > 0
+	}
+	return []SensorStatus{}, false
+}
+
+// すべてのセンサーの状態をキャッシュする
+func (rsm *RoomStatusManager) cacheUpdater(ctx context.Context) {
 	fmt.Println("starting UpdateStatusWorker")
 
 	tick := time.NewTicker(INTERVAL)
 	for {
 		fmt.Println("update status")
-		// room1
-		if err := rs.updateStatus("room1", "Room1_yuuki"); err != nil {
-			fmt.Println(err)
-		}
 
-		// room2
-		if err := rs.updateStatus("room2", "Room2_yuuki"); err != nil {
+		for err := range rsm.updateAllSensorStatuses() {
 			fmt.Println(err)
 		}
 
@@ -317,26 +266,83 @@ func (rs *RoomStatusManager) updateStatusWorker(ctx context.Context) {
 	}
 }
 
-func (rs *RoomStatusManager) updateStatus(roomId, thingName string) error {
-	prop, err := rs.thingworx.Properties(thingName)
+func (rsm *RoomStatusManager) updateAllSensorStatuses() []error {
+	errCh := make(chan error)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		tx, err := rsm.db.Begin()
+		if err != nil {
+			errCh <- err
+			return
+		}
+		defer tx.Rollback()
+
+		rows, err := tx.Query(
+			`SELECT room_id, thing_name FROM thing`,
+		)
+		if err != nil {
+			errCh <- err
+			return
+		}
+
+		for rows.Next() {
+			var id RoomID
+			var name ThingName
+			rows.Scan(&id, &name)
+
+			// start async update
+			wg.Add(1)
+			go func(id RoomID, name ThingName) {
+				defer wg.Done()
+				if err := rsm.updateSensorStatus(id, name); err != nil {
+					errCh <- err
+					return
+				}
+			}(id, name)
+		}
+	}()
+
+	go func() {
+		wg.Wait()
+		close(errCh)
+	}()
+
+	errs := []error{}
+	for err := range errCh {
+		errs = append(errs, err)
+	}
+	return errs
+}
+
+// センサーで測定した部屋の状態を、DBに反映する。
+func (rsm *RoomStatusManager) updateSensorStatus(id RoomID, thingName ThingName) error {
+	var stat SensorStatus
+
+	prop, err := rsm.thingworx.Properties(thingName)
 	if err != nil {
 		return err
 	}
-	temp, err := prop.M("temperature").Float64()
+	stat.Temperature, err = prop.M("temperature").Float64()
 	if err != nil {
 		return err
 	}
-	isConnected, err := prop.M("isConnected").Bool()
+	stat.Humidity, err = prop.M("humidity").Float64()
+	if err != nil {
+		return err
+	}
+	stat.IsConnected, err = prop.M("isConnected").Bool()
 	if err != nil {
 		return err
 	}
 
-	if err := rs.setter(roomId, func(stat *RoomStatus) error {
-		stat.Temperature = float32(temp)
-		stat.IsConnected = isConnected
-		return nil
-	}); err != nil {
-		return err
+	rsm.cacheLock.Lock()
+	defer rsm.cacheLock.Unlock()
+	if _, ok := rsm.sensorCache[id]; !ok {
+		rsm.sensorCache[id] = map[ThingName]SensorStatus{}
 	}
+	rsm.sensorCache[id][thingName] = stat
 	return nil
 }
