@@ -33,7 +33,7 @@ func (v *Vote) UpdateChoice(tx *sql.Tx, choice VoteChoice) error {
 			INSERT INTO vote(
 				session_id, room_id, choice, timestamp
 			) VALUES (?, ?, ?, ?)`,
-			v.S.SessionID, v.RoomID, string(v.Choice), now,
+			v.S.SessionID, v.RoomID, string(choice), now,
 		); err != nil {
 			return err
 		}
