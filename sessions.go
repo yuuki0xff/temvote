@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
 	"database/sql"
@@ -29,33 +30,50 @@ type Session struct {
 }
 
 func GetSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) *Session {
-	strid := req.Header.Get(SESSION_ID_COOKIE)
-	id, err := strconv.ParseUint(strid, 10, 64)
+	cookie, err := req.Cookie(SESSION_ID_COOKIE)
 	if err != nil {
 		return nil
 	}
-
-	s := &Session{
-		SessionID: id,
-		req:       req,
-		w:         w,
-		tx:        tx,
-		writen:    true,
+	id, err := strconv.ParseUint(cookie.Value, 10, 64)
+	if err != nil {
+		return nil
 	}
 
 	row := tx.QueryRow(`
 		SELECT secret_sha256 FROM session
 		WHERE session_id=? AND expire>=?
 	`, id, time.Now())
-	var hashedSecret string
-	if row.Scan(&hashedSecret) != nil {
+	var tmp string
+	if row.Scan(&tmp) != nil {
 		return nil
 	}
-	secretSHA256 := sha256.Sum256([]byte(req.Header.Get(SESSION_SECRET_COOKIE)))
-	if hashedSecret != hex.EncodeToString(secretSHA256[:]) {
+	hashedSecret, err := hex.DecodeString(tmp)
+	if err != nil {
 		return nil
 	}
-	return s
+
+	cookie, err = req.Cookie(SESSION_SECRET_COOKIE)
+	if err != nil {
+		return nil
+	}
+	secret := cookie.Value
+	randomData, err := hex.DecodeString(cookie.Value)
+	if err != nil {
+		return nil
+	}
+	hashedSecret2 := sha256.Sum256(randomData)
+	if bytes.Compare(hashedSecret, hashedSecret2[:]) != 0 {
+		return nil
+	}
+
+	return &Session{
+		SessionID: id,
+		req:       req,
+		w:         w,
+		tx:        tx,
+		writen:    true,
+		secret:    secret,
+	}
 }
 
 func NewSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) (*Session, error) {
@@ -65,7 +83,7 @@ func NewSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) (*Session,
 		return nil, err
 	}
 	secret := hex.EncodeToString(randomData)
-	secretSHA256 := sha256.Sum256([]byte(secret))
+	secretSHA256 := sha256.Sum256([]byte(randomData))
 
 	if _, err := tx.Exec(`
 		INSERT INTO session(
