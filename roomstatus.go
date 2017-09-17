@@ -277,6 +277,11 @@ func (rsm *RoomStatusManager) cacheUpdater(ctx context.Context) {
 			log.Println(err)
 		}
 
+		log.Println("clean up expired sessions")
+		if err := rsm.cleanUpExpiredSessions(); err != nil {
+			log.Println(err)
+		}
+
 		select {
 		case <-ctx.Done():
 			return
@@ -369,5 +374,22 @@ func (rsm *RoomStatusManager) updateSensorStatus(id RoomID, thingName ThingName)
 		rsm.sensorCache[id] = map[ThingName]SensorStatus{}
 	}
 	rsm.sensorCache[id][thingName] = stat
+	return nil
+}
+
+func (rsm *RoomStatusManager) cleanUpExpiredSessions() error {
+	tx, err := rsm.db.Begin()
+	if err != nil {
+		return err
+	}
+	if _, err := tx.Exec(
+		`DELETE FROM session WHERE expire<?`,
+		time.Now(),
+	); err != nil {
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
