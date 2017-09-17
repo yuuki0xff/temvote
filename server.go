@@ -163,8 +163,8 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 			return
 		}
 
-		tx.Commit()
 		tx.s.ExtendExpiration()
+		tx.Commit()
 		w.WriteHeader(200)
 		w.Write(js)
 	}).Methods("POST")

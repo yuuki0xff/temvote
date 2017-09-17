@@ -87,6 +87,7 @@ func NewSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) (*Session,
 		SessionID: sid,
 		req:       req,
 		w:         w,
+		tx:        tx,
 		writen:    false,
 		secret:    secret,
 	}, nil
