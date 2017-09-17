@@ -60,14 +60,23 @@
         statusMsg.classList.remove('active');
         errorMsg.classList.remove('active');
 
-        if(status.isConnected) {
-            // 不快度指数の求め方はWikipediaより。
+        if(status.sensors.length > 0 && status.sensors[0].isConnected) {
+            // 不快指数の求め方はWikipediaより。
             // https://ja.wikipedia.org/wiki/%E4%B8%8D%E5%BF%AB%E6%8C%87%E6%95%B0
-            var t = status.temperature;
-            var h = status.humidity;
+
+            // 温度と湿度の平均値を出す
+            var t = 0.0;
+            var h = 0.0;
+            for(var s of status.sensors){
+                t += s.temperature;
+                h += s.humidity;
+            }
+            t /= status.sensors.length;
+            h /= status.sensors.length;
+
             var discomfortIndex = 0.81 * t + 0.01 * h * (0.99 * t - 14.3) + 46.3;
             statusMsg.classList.add('active');
-            statusMsg.querySelector('.temperature').innerText = parseInt(status.temperature, 0);
+            statusMsg.querySelector('.temperature').innerText = parseInt(s.temperature, 0);
             statusMsg.querySelector('.discomfort').innerText = parseInt(discomfortIndex, 0);
             var discomfortClasses = statusMsg.querySelector('.discomfort').classList;
             discomfortClasses.remove('level0');
@@ -92,7 +101,7 @@
         var comfort = document.querySelector('.button.comfort');
         var cold = document.querySelector('.button.cold');
 
-        switch(myvote.vote){
+        switch(myvote===null ? '' : myvote.vote){
             case 'hot':
                 hot.classList.add('active');
                 comfort.classList.remove('active');

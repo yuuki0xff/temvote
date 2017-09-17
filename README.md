@@ -13,7 +13,9 @@ $ export TEMVOTE_DEPLOY_DIR=./static.deploy
 $ export TEMVOTE_SECRET_FILE=./secret.conf
 $ export TEMVOTE_METRICS_FILE=./metrics.jsonl
 $ export TEMVOTE_COOKIE_SECRET="encryption key"
-$ export TEMVOTE_DB_FILE=./temvote.db
+$ export TEMVOTE_DB_DRIVER=mysql
+  # See https://github.com/go-sql-driver/mysql#examples
+$ export TEMVOTE_DB_URL=user:password@tcp(db.example.com:3306)/dbname
 $ export TEMVOTE_THINGWORX_URL=https://user:passwd@example.com/Thingworx
 $ touch ./secret.conf
 $ ./temvote

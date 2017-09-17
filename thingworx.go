@@ -8,12 +8,14 @@ import (
 	"net/http"
 )
 
+type ThingName string
+
 type ThingWorxClient struct {
 	URL string
 }
 
-func (tw *ThingWorxClient) Properties(name string) (dproxy.Proxy, error) {
-	url := fmt.Sprintf("%s/Things/%s/Properties/", tw.URL, name)
+func (tw *ThingWorxClient) Properties(name ThingName) (dproxy.Proxy, error) {
+	url := fmt.Sprintf("%s/Things/%s/Properties/", tw.URL, string(name))
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

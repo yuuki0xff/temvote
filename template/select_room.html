@@ -14,7 +14,7 @@
             <button>{{ $group1 }}</button>
             <div class="accordions">
                 {{ range $group2, $ids := $innerGroups }}
-                    <button>{{ $group2 }}</button>
+                    <button>{{ $group2 }}階</button>
                     <div class="rooms">
                         {{ range $id := $ids }}
                             <a href="./vote/{{ $id }}">{{ index $.RoomNames $id }}</a>
