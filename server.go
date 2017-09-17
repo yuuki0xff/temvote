@@ -289,6 +289,9 @@ func startHttpServer(ctx context.Context, router *mux.Router) (err error) {
 }
 
 func main() {
+	// set up logger
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+
 	ctx, cancel := context.WithCancel(context.Background())
 
 	sig := make(chan os.Signal)
