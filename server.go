@@ -17,6 +17,10 @@ import (
 	"time"
 )
 
+const (
+	ServerErrorMsg = "500 Internal Server Error"
+)
+
 type RouterOption struct {
 	StaticDir    string `envconfig:"STATIC_DIR"`
 	DeployDir    string `envconfig:"DEPLOY_DIR"`
@@ -65,7 +69,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		tx, err := rsm.GetTx(w, req)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 		defer tx.Rollback()
@@ -80,20 +84,20 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		res.Status, err = tx.GetStatus(roomID)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 		res.MyVote, err = tx.GetMyVote(roomID)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 
 		js, err := json.Marshal(res)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "json encode error", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 
@@ -109,7 +113,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		tx, err := rsm.GetTx(w, req)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 		defer tx.Rollback()
@@ -134,27 +138,27 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		err = tx.Vote(roomID, choice)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 
 		res.Status, err = tx.GetStatus(roomID)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 		res.MyVote, err = tx.GetMyVote(roomID)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 
 		js, err := json.Marshal(res)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 
@@ -210,7 +214,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		tx, err := rsm.GetTx(w, req)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 		defer tx.Rollback()
@@ -226,7 +230,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		roomName, err := tx.GetRoomName(roomID)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 
@@ -243,7 +247,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		tx, err := rsm.GetTx(w, req)
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 		defer tx.Rollback()
@@ -251,7 +255,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		names, groups, err := tx.GetAllRoomsInfo()
 		if err != nil {
 			log.Println("ERROR:", err)
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
 			return
 		}
 
