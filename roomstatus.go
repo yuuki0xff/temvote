@@ -145,10 +145,11 @@ func (rst *RoomStatusTx) GetStatus(id RoomID) (*RoomStatus, error) {
 	}
 
 	rows, err := rst.tx.Query(
-		`SELECT choice, count(vote_id) FROM vote
-		WHERE room_id=?
-		GROUP BY choice`,
-		id,
+		`SELECT vote.choice, count(vote.vote_id) FROM vote
+		NATURAL JOIN session
+		WHERE vote.room_id=? AND session.expire>=?
+		GROUP BY vote.choice`,
+		id, time.Now(),
 	)
 	if err != nil {
 		return nil, err
