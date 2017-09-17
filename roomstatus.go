@@ -13,7 +13,8 @@ type RoomNameMap map[RoomID]string
 type RoomGroupMap map[BuildingName]map[FloorID][]RoomID
 
 const (
-	INTERVAL = 1 * time.Minute
+	INTERVAL     = 1 * time.Minute
+	CACHE_EXPIRE = 3 * time.Minute
 )
 
 type RoomStatus struct {
@@ -272,7 +273,7 @@ func (rsm *RoomStatusManager) cacheUpdater(ctx context.Context) {
 	for {
 		log.Println("update status")
 
-		for err := range rsm.updateAllSensorStatuses() {
+		for _, err := range rsm.updateAllSensorStatuses() {
 			log.Println(err)
 		}
 
@@ -309,7 +310,7 @@ func (rsm *RoomStatusManager) updateAllSensorStatuses() []error {
 		for rows.Next() {
 			var id RoomID
 			var name ThingName
-			rows.Scan(&id, &name)
+			rows.Scan(&id, (*string)(&name))
 
 			// start async update
 			wg.Add(1)
@@ -355,6 +356,7 @@ func (rsm *RoomStatusManager) updateSensorStatus(id RoomID, thingName ThingName)
 	if err != nil {
 		return err
 	}
+	stat.expire = time.Now().Add(CACHE_EXPIRE)
 
 	rsm.cacheLock.Lock()
 	defer rsm.cacheLock.Unlock()
