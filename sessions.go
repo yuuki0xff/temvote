@@ -70,10 +70,10 @@ func NewSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) (*Session,
 	if _, err := tx.Exec(`
 		INSERT INTO session(
 			secret_sha256,
-			timestamp
+			expire
 		) VALUES (?, ?)`,
 		hex.EncodeToString(secretSHA256[:]),
-		time.Now(),
+		time.Now().Add(COOKIE_MAX_AGE*time.Second),
 	); err != nil {
 		return nil, err
 	}
