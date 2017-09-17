@@ -41,7 +41,7 @@ func (v *Vote) UpdateChoice(tx *sql.Tx, choice VoteChoice) error {
 		// 投票内容を変更する場合
 		if _, err := tx.Exec(`
 			UPDATE vote SET choice=?, timestamp=? WHERE vote_id=?`,
-			choice, now, v.VoteID,
+			string(choice), now, v.VoteID,
 		); err != nil {
 			return err
 		}
