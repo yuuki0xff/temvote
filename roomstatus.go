@@ -107,7 +107,7 @@ func (rst *RoomStatusTx) GetMyVote(id RoomID) (vote *MyVote, err error) {
 		`SELECT choice, timestamp FROM vote
 			WHERE session_id=? AND room_id=?`,
 		rst.s.SessionID, id,
-	).Scan(&v.Choice, &v.Timestamp); err != nil {
+	).Scan((*string)(&v.Choice), &v.Timestamp); err != nil {
 		if err == sql.ErrNoRows {
 			// 未投票の状態。
 			err = nil
@@ -147,7 +147,7 @@ func (rst *RoomStatusTx) GetStatus(id RoomID) (*RoomStatus, error) {
 	for rows.Next() {
 		var choice VoteChoice
 		var count uint64
-		if err := rows.Scan(&choice, &count); err != nil {
+		if err := rows.Scan((*string)(&choice), &count); err != nil {
 			return nil, err
 		}
 		switch choice {
