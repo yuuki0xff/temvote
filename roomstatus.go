@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -248,14 +248,14 @@ func (rsm *RoomStatusManager) getSensorStatusFromCache(id RoomID) ([]SensorStatu
 
 // すべてのセンサーの状態をキャッシュする
 func (rsm *RoomStatusManager) cacheUpdater(ctx context.Context) {
-	fmt.Println("starting UpdateStatusWorker")
+	log.Println("starting UpdateStatusWorker")
 
 	tick := time.NewTicker(INTERVAL)
 	for {
-		fmt.Println("update status")
+		log.Println("update status")
 
 		for err := range rsm.updateAllSensorStatuses() {
-			fmt.Println(err)
+			log.Println(err)
 		}
 
 		select {

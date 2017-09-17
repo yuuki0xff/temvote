@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/kelseyhightower/envconfig"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -260,7 +260,7 @@ func startHttpServer(ctx context.Context, router *mux.Router) (err error) {
 		<-ctx.Done()
 		srv.Shutdown(ctx)
 	}()
-	fmt.Println("start server")
+	log.Println("start server")
 	srv.ListenAndServe()
 	return
 }
@@ -272,7 +272,7 @@ func main() {
 	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
 		<-sig
-		fmt.Println("signal handled")
+		log.Println("signal handled")
 		cancel()
 	}()
 
