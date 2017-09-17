@@ -77,8 +77,14 @@ func NewSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) (*Session,
 	); err != nil {
 		return nil, err
 	}
+
+	var sid uint64
+	row := tx.QueryRow(`SELECT LAST_INSERT_ID()`)
+	if err := row.Scan(&sid); err != nil {
+		return nil, err
+	}
 	return &Session{
-		SessionID: 0,
+		SessionID: sid,
 		req:       req,
 		w:         w,
 		writen:    false,
