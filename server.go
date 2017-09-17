@@ -66,7 +66,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 
 		w.Header().Set("Cache-Control", "no-store")
 
-		tx, err := rsm.GetTx(w, req)
+		tx, err := rsm.GetTx(w, req, false)
 		if err != nil {
 			log.Println("ERROR:", err)
 			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
@@ -110,7 +110,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 
 		w.Header().Set("Cache-Control", "no-store")
 
-		tx, err := rsm.GetTx(w, req)
+		tx, err := rsm.GetTx(w, req, true)
 		if err != nil {
 			log.Println("ERROR:", err)
 			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
@@ -212,7 +212,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 	}).Methods("GET")
 	router.Handle("/", http.RedirectHandler("/select_room.html", 303)).Methods("GET")
 	router.HandleFunc("/vote/{roomid}", func(w http.ResponseWriter, req *http.Request) {
-		tx, err := rsm.GetTx(w, req)
+		tx, err := rsm.GetTx(w, req, false)
 		if err != nil {
 			log.Println("ERROR:", err)
 			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)
@@ -246,7 +246,7 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 
 	}).Methods("GET")
 	router.HandleFunc("/select_room.html", func(w http.ResponseWriter, req *http.Request) {
-		tx, err := rsm.GetTx(w, req)
+		tx, err := rsm.GetTx(w, req, false)
 		if err != nil {
 			log.Println("ERROR:", err)
 			http.Error(w, ServerErrorMsg, http.StatusInternalServerError)

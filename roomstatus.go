@@ -42,7 +42,9 @@ type RoomStatusManager struct {
 type RoomStatusTx struct {
 	rsm *RoomStatusManager
 	tx  *sql.Tx
-	s   *Session
+
+	// nilになる場合があるため、使用前に必ずnilチェックを行うこと。
+	s *Session
 }
 
 type SensorStatus struct {
@@ -64,13 +66,13 @@ func NewRoomStatusManager(db *sql.DB, thingworx *ThingWorxClient, ctx context.Co
 	return rs
 }
 
-func (rsm *RoomStatusManager) GetTx(w http.ResponseWriter, req *http.Request) (*RoomStatusTx, error) {
+func (rsm *RoomStatusManager) GetTx(w http.ResponseWriter, req *http.Request, new bool) (*RoomStatusTx, error) {
 	tx, err := rsm.db.Begin()
 	if err != nil {
 		return nil, err
 	}
 	s := GetSession(w, req, tx)
-	if s == nil {
+	if s == nil && new {
 		s, err = NewSession(w, req, tx)
 		if err != nil {
 			return nil, err
@@ -103,6 +105,12 @@ func (rst *RoomStatusTx) GetRoomName(id RoomID) (name string, err error) {
 // 投票内容を取得する。未投票の場合はnilを返す
 func (rst *RoomStatusTx) GetMyVote(id RoomID) (vote *MyVote, err error) {
 	var v Vote
+
+	if rst.s == nil {
+		// セッションがnilなので、未投票とみなす
+		return nil, nil
+	}
+
 	if err = rst.tx.QueryRow(
 		`SELECT choice, timestamp FROM vote
 			WHERE session_id=? AND room_id=?`,
@@ -163,6 +171,10 @@ func (rst *RoomStatusTx) GetStatus(id RoomID) (*RoomStatus, error) {
 }
 
 func (rst *RoomStatusTx) Vote(id RoomID, choice VoteChoice) error {
+	if rst.s == nil {
+		panic("session must not nil")
+	}
+
 	vote := Vote{
 		RoomID: id,
 		S:      rst.s,
