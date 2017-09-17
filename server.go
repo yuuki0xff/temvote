@@ -77,8 +77,8 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		strRoomID := req.URL.Query().Get("room")
 		roomID, err := StringToRoomID(strRoomID)
 		if err != nil {
-			log.Println("ERROR:", err)
-			http.Error(w, "invalid id", http.StatusBadRequest)
+			log.Printf("WARN: can not parse RoomID(%s): %s\n", strRoomID, err.Error())
+			http.Error(w, "room parameter is invalid", http.StatusBadRequest)
 			return
 		}
 		res.Status, err = tx.GetStatus(roomID)
@@ -121,8 +121,8 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		strRoomID := req.URL.Query().Get("room")
 		roomID, err := StringToRoomID(strRoomID)
 		if err != nil {
-			log.Println("ERROR:", err)
-			http.Error(w, "invalid id", http.StatusBadRequest)
+			log.Printf("WARN: can not parse RoomID(%s): %s\n", strRoomID, err.Error())
+			http.Error(w, "room parameter is invalid", http.StatusBadRequest)
 			return
 		}
 
@@ -132,7 +132,8 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		case Comfort:
 		case Cold:
 		default:
-			http.Error(w, "invalid parameter: vote", http.StatusBadRequest)
+			log.Printf("WARN: vote parameter is invalid: vote=%d\n", choice)
+			http.Error(w, "vote parameter is invalid", http.StatusBadRequest)
 			return
 		}
 		err = tx.Vote(roomID, choice)
@@ -223,7 +224,8 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		strRoomID := vars["roomid"]
 		roomID, err := StringToRoomID(strRoomID)
 		if err != nil {
-			http.Error(w, "invalid roomid", http.StatusBadRequest)
+			log.Printf("WARN: can not parse RoomID(%s): %s\n", strRoomID, err.Error())
+			http.Error(w, "roomid parameter is invalid", http.StatusBadRequest)
 			return
 		}
 
