@@ -70,6 +70,12 @@ func (rsm *RoomStatusManager) GetTx(w http.ResponseWriter, req *http.Request) (*
 		return nil, err
 	}
 	s := GetSession(w, req, tx)
+	if s == nil {
+		s, err = NewSession(w, req, tx)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return &RoomStatusTx{
 		rsm: rsm,
 		tx:  tx,

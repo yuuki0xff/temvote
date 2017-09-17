@@ -58,7 +58,7 @@ func GetSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) *Session {
 	return s
 }
 
-func NewSession(w http.ResponseWriter, req *http.Request, tx sql.Tx) (*Session, error) {
+func NewSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) (*Session, error) {
 	// generate secret
 	randomData := make([]byte, 32)
 	if _, err := rand.Read(randomData); err != nil {
