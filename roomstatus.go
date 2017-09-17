@@ -358,6 +358,11 @@ func (rsm *RoomStatusManager) updateSensorStatus(id RoomID, thingName ThingName)
 	}
 	stat.expire = time.Now().Add(CACHE_EXPIRE)
 
+	if !stat.IsConnected {
+		log.Printf("WARN: \"%s\" is not connected", thingName)
+		return nil
+	}
+
 	rsm.cacheLock.Lock()
 	defer rsm.cacheLock.Unlock()
 	if _, ok := rsm.sensorCache[id]; !ok {
