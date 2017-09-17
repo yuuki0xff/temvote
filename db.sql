@@ -6,9 +6,9 @@ CREATE TABLE session (
 
 CREATE TABLE room (
   room_id       BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  name          TEXT         NOT NULL COMMENT 'ex: 研A402',
-  building_name TEXT         NOT NULL COMMENT 'ex: 研究棟A',
-  floor         INT UNSIGNED NOT NULL COMMENT '地下階はマイナスの値、地上階はプラスの値。0は存在しない'
+  name          TEXT NOT NULL COMMENT 'ex: 研A402',
+  building_name TEXT NOT NULL COMMENT 'ex: 研究棟A',
+  floor         INT  NOT NULL COMMENT '地下階はマイナスの値、地上階はプラスの値。0は存在しない'
 ) CHARSET = 'utf8';
 
 CREATE TABLE thing (
