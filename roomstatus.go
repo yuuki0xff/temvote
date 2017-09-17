@@ -268,12 +268,11 @@ func (rsm *RoomStatusManager) getSensorStatusFromCache(id RoomID) ([]SensorStatu
 
 // すべてのセンサーの状態をキャッシュする
 func (rsm *RoomStatusManager) cacheUpdater(ctx context.Context) {
-	log.Println("starting UpdateStatusWorker")
+	log.Println("starting cacheUpdater")
 
 	tick := time.NewTicker(INTERVAL)
 	for {
-		log.Println("update status")
-
+		log.Println("update all sensor statuses")
 		for _, err := range rsm.updateAllSensorStatuses() {
 			log.Println(err)
 		}
