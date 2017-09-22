@@ -78,6 +78,8 @@
             statusMsg.classList.add('active');
             statusMsg.querySelector('.temperature').innerText = parseInt(s.temperature, 0);
             statusMsg.querySelector('.discomfort').innerText = parseInt(discomfortIndex, 0);
+
+            // 不快指数の背景色を更新する
             var discomfortClasses = statusMsg.querySelector('.discomfort').classList;
             discomfortClasses.remove('level0');
             discomfortClasses.remove('level1');
@@ -89,6 +91,13 @@
                 discomfortIndex <= 78 ? 'level1' :
                 discomfortIndex <= 80 ? 'level2' : 'level3'
             );
+
+            // メーターの位置を更新する
+            var diMin = 60;
+            var diMax = 90;
+            var diMeterArrow = statusMsg.querySelector('.meter .arrow');
+            diMeterArrow.style.marginLeft =
+                (90 * Math.min(Math.max(0.0, (discomfortIndex - diMin) / (diMax - diMin)), 1.0)) + '%';
         }else{
             errorMsg.classList.add('active');
         }

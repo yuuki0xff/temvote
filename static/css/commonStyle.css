@@ -8,11 +8,11 @@ body{
 h1.voteTitle{
   /* voteTitleの最大文字数が7なので、１も自分余裕を持ったサイズに設定 */
   font-size: 12.5vmin; /* = 100/8 */
-  
+
   text-align: center;
   margin-bottom: 0px;
   margin-top: 0px;
-  
+
   width: 100%;
   height: 20%;
 }
@@ -130,4 +130,27 @@ div.select_button span.displayCount{
 
 .rooms > a:hover {
     background-color: #aaf;
+}
+
+.meter {
+    width: 100%;
+    text-align: left;
+
+    overflow: visible;
+}
+
+.meter img {
+    display: block;
+}
+
+.meter .bg {
+    width: 100%;
+}
+
+.meter .arrow {
+    width: 10%;
+    height: 10%;
+
+    margin-left: 0;  /* JavaScriptによって更新される。値域は0~90% */
+    transition: all 0.2s ease-in-out;
 }
