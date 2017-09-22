@@ -17,7 +17,9 @@ h1.voteTitle{
   height: 20%;
 }
 
-.back{
+a.back {
+    display: block;
+
     font-size: 5vmin;
     text-align: right;
     padding: 0.3em;
@@ -33,8 +35,8 @@ h1.voteTitle{
     border-bottom-right-radius: 0.8em;
 }
 
-.back a,
-.back a:hover {
+a.back,
+a.back:hover {
     color: black;
     text-decoration: none;
 }
