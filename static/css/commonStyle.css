@@ -17,6 +17,28 @@ h1.voteTitle{
   height: 20%;
 }
 
+.back{
+    font-size: 5vmin;
+    text-align: right;
+    padding: 0.3em;
+    margin-bottom: 0.5em;
+    background-color: lightgray;
+
+    top: 0.3em;
+    left: 0.3em;
+    width: 3em;
+
+    border-radius: 2em;
+    border-top-right-radius: 0.8em;
+    border-bottom-right-radius: 0.8em;
+}
+
+.back a,
+.back a:hover {
+    color: black;
+    text-decoration: none;
+}
+
 div.select_button{
     text-align: center;
     white-space: nowrap;
