@@ -135,7 +135,7 @@ div.select_button span.displayCount{
 .meter {
     width: 100%;
     text-align: left;
-
+    margin-top: 0.3em;
     overflow: visible;
 }
 
