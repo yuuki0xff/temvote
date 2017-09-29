@@ -76,6 +76,7 @@ func (rsm *RoomStatusManager) GetTx(w http.ResponseWriter, req *http.Request, ne
 	if s == nil && new {
 		s, err = NewSession(w, req, tx)
 		if err != nil {
+			defer tx.Rollback()
 			return nil, err
 		}
 	}
@@ -382,6 +383,7 @@ func (rsm *RoomStatusManager) cleanUpExpiredSessions() error {
 	if err != nil {
 		return err
 	}
+	defer tx.Rollback()
 	if _, err := tx.Exec(
 		`DELETE FROM session WHERE expire<?`,
 		time.Now(),
