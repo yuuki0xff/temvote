@@ -76,7 +76,7 @@
 
             var discomfortIndex = 0.81 * t + 0.01 * h * (0.99 * t - 14.3) + 46.3;
             statusMsg.classList.add('active');
-            statusMsg.querySelector('.temperature').innerText = parseInt(s.temperature, 0);
+            statusMsg.querySelector('.temperature').innerText = parseInt(t, 0);
             statusMsg.querySelector('.discomfort').innerText = parseInt(discomfortIndex, 0);
 
             // 不快指数の背景色を更新する
