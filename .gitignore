@@ -3,6 +3,7 @@
 
 # binary files
 /cli/bme280d/bme280d
+/maint-usb-memory/service/bme280d
 
 # disk image files
 /maint-usb-memory/*.img
