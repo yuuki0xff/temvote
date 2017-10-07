@@ -10,6 +10,9 @@ all: setup-usb.img setup-usb.img.gz debug-usb.img debug-usb.img.gz
 
 clean:
 	rm -f setup-usb.img setup-usb.img.gz debug-usb.img debug-usb.img.gz
+	# remove temporary files
+	sudo rm -rf .su-img.tmp .su-root.tmp .su-fsroot.tmp
+	sudo rm -rf .du-img.tmp .du-root.tmp .du-fsroot.tmp
 
 setup-usb.img.gz: setup-usb.img
 	gzip --keep setup-usb.img
