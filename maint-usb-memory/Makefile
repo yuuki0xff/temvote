@@ -26,6 +26,8 @@ setup-usb.img:
 	cp -a service/ .su-root.tmp/
 	rm .su-root.tmp/service/Makefile
 	cp -a config/  .su-root.tmp/
+	rm .su-root.tmp/config/*.tmpl.conf
+	[ -f .su-root.tmp/wpa_supplicant.tmpl.conf ] || (echo "ERROR: wpa_supplicant.conf file is not found." >&2; exit 1)
 	cp -a gpg/     .su-root.tmp/
 	touch .su-root.tmp/host_secret.list
 
