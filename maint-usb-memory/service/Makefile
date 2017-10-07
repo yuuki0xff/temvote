@@ -2,4 +2,4 @@
 
 all:
 	cd ../../cli/bme280d; make
-	cp -a ../../cli/bme280d .
+	cp -a ../../cli/bme280d/bme280d .
