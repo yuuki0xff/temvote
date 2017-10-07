@@ -29,7 +29,7 @@ setup-usb.img:
 	cp -a gpg/     .su-root.tmp/
 	touch .su-root.tmp/host_secret.list
 
-	cd .su-root.tmp && find -type f -exec sha256sum '{}' '+' >../.su-sha256sum
+	cd .su-root.tmp && find -type f -exec sha256sum '{}' '+' |sort >../.su-sha256sum
 	cd .su-root.tmp && mv ../.su-sha256sum sha256sum
 	cd .su-root.tmp && gpg --output sha256sum.sig --sign sha256sum
 
@@ -56,7 +56,7 @@ debug-usb.img:
 
 	cp -a bme280d-debug.sh  bme280d-exit-debug.sh .du-root.tmp
 
-	cd .du-root.tmp && find -type f -exec sha256sum '{}' '+' >../.du-sha256sum
+	cd .du-root.tmp && find -type f -exec sha256sum '{}' '+' |sort >../.du-sha256sum
 	cd .du-root.tmp && mv ../.du-sha256sum sha256sum
 	cd .du-root.tmp && gpg --output sha256sum.sig --sign sha256sum
 
