@@ -16,7 +16,7 @@ $ dd bs=1M if=debug-usb.img of=/path/to/usb/memory2
 
 詳細なシーケンスはこのようになっている。
 
-1. /etc/fstabには、`bme280d-(setup|debug)`のラベルがついたFATパーティションが自動マウントされるよう設定している。
+1. /etc/fstabには、`bme-(setup|debug)`のラベルがついたFATパーティションが自動マウントされるよう設定している。
    設定用のUSBメモリが接続されると、この設定に従い、即座にマウントされる。
 2. USBメモリがマウントされたあとのトリガーで、`bme280-autorun-*.service`が起動する。
    これらのサービスは、`/etc/bme280d-autorun/*.sh`を実行する。
@@ -31,7 +31,7 @@ $ dd bs=1M if=debug-usb.img of=/path/to/usb/memory2
 Ubuntuをインストールした直後に実行することを想定したもの。
 自動実行はできないため、手動でインストールスクリプトを実行する。
 
-パーティションラベル名: bme280d-setup
+パーティションラベル名: bme-setup
 
 やること:
 - パッケージのアップデート
@@ -54,7 +54,7 @@ Ubuntuをインストールした直後に実行することを想定したも�
 
 
 ## デバッグ用USBメモリ
-パーティションラベル名: bme280d-debug
+パーティションラベル名: bme-debug
 
 やること:
 - sshdを起動
