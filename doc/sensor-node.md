@@ -17,7 +17,7 @@
    https://wiki.ubuntu.com/ARM/RaspberryPi
 2. Raspberry Piの電源を入れ、コンソールからログインする。ユーザ名は`ubuntu`、パスワードは`ubuntu`。
 3. 初期設定 & 設定更新用USBメモリを接続
-4. `sudo mount /dev/disk/by-label/bme280d-setup /mnt`
+4. `sudo mount /dev/disk/by-label/bme-setup /mnt`
 5. `sudo /mnt/bme280d-setup.sh`
 6. `sudo umount /mnt`
 7. 初期設定 & 設定更新用USBメモリを取り外す
