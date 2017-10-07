@@ -1,2 +1,5 @@
 /nbproject/
 /static.deploy/
+
+# binary files
+/cli/bme280d/bme280d
