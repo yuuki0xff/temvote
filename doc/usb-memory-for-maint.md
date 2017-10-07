@@ -44,7 +44,9 @@ Ubuntuをインストールした直後に実行することを想定したも�
 - sha256sum
 - sha256sum.sgn
 - bme280d-setup.sh
+- bme280d-setup-base.sh
 - bme280d-update.sh
+- system-reset.sh
 - service/bme280d
 - service/bme280d.service
 - config/wpa_supplicant.conf  (Wi-Fiの設定)
@@ -65,4 +67,4 @@ Ubuntuをインストールした直後に実行することを想定したも�
 - sha256sum
 - sha256sum.sgn
 - bme280d-debug.sh
-- bme280d-exit-debug.sh
+- system-reset.sh
