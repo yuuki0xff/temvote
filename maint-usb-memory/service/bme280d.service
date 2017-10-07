@@ -1,0 +1,20 @@
+[Unit]
+Description=Temperature Logger
+Documentation=https://github.com/yuuki0xff/temvote/doc
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/path/to/bme280d
+User=daemon
+Group=daemon
+
+Restart=always
+RestartSec=1m
+
+# disable start limit
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
+

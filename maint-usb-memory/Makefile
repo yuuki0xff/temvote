@@ -24,7 +24,7 @@ setup-usb.img:
 	sudo rm -rf .su-img.tmp .su-root.tmp .su-fsroot.tmp
 	mkdir -p .su-root.tmp .su-fsroot.tmp
 
-	cp -a bme280d-setup.sh bme280d-update.sh .su-root.tmp
+	cp -a bme280d-setup.sh bme280d-update.sh system-reset.sh .su-root.tmp
 	cd service && make
 	cp -a service/ .su-root.tmp/
 	rm .su-root.tmp/service/Makefile
@@ -32,6 +32,7 @@ setup-usb.img:
 	rm .su-root.tmp/config/*.tmpl.conf
 	[ -f .su-root.tmp/wpa_supplicant.tmpl.conf ] || (echo "ERROR: wpa_supplicant.conf file is not found." >&2; exit 1)
 	cp -a gpg/     .su-root.tmp/
+	touch .su-root.tmp/host_passwd.list
 	touch .su-root.tmp/host_secret.list
 
 	cd .su-root.tmp && find -type f -exec sha256sum '{}' '+' |sort >../.su-sha256sum
@@ -59,7 +60,7 @@ debug-usb.img:
 	sudo rm -rf .du-img.tmp .du-root.tmp .du-fsroot.tmp
 	mkdir -p .du-root.tmp .du-fsroot.tmp
 
-	cp -a bme280d-debug.sh  bme280d-exit-debug.sh .du-root.tmp
+	cp -a bme280d-debug.sh system-reset.sh .du-root.tmp
 
 	cd .du-root.tmp && find -type f -exec sha256sum '{}' '+' |sort >../.du-sha256sum
 	cd .du-root.tmp && mv ../.du-sha256sum sha256sum
