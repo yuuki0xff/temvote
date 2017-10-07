@@ -3,3 +3,6 @@
 
 # binary files
 /cli/bme280d/bme280d
+
+# iso files
+/maint-usb-memory/*.iso
