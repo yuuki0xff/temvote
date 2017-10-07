@@ -9,25 +9,25 @@
 - USBメモリ (2本。容量は小さくてもOK)
 
 ## USBメモリを準備
-初期設定用、設定更新用、デバッグ用の3種類があります。
+初期設定 & 設定更新用、デバッグ用の2種類があります。
 詳しくは、`./doc/usb-memory-for-maint.md`を参照してください。
 
 ## 初期設定
 1. MicroSD CardにUbuntu 16.04 LTSのディスクイメージを書き込む。
    https://wiki.ubuntu.com/ARM/RaspberryPi
 2. Raspberry Piの電源を入れ、コンソールからログインする。ユーザ名は`ubuntu`、パスワードは`ubuntu`。
-3. 初期設定用USBメモリを接続
+3. 初期設定 & 設定更新用USBメモリを接続
 4. `sudo mount /dev/disk/by-label/bme280d-setup /mnt`
 5. `sudo /mnt/bme280d-setup.sh`
 6. `sudo umount /mnt`
-7. 初期設定用USBメモリを取り外す
+7. 初期設定 & 設定更新用USBメモリを取り外す
 8. `sudo reboot`
 9. 数分くらいしてから、ThingWorxにデータが届いているか確認する
 
 ## 設定更新
-1. 設定更新用USBメモリを接続
+1. 初期設定 & 設定更新用USBメモリを接続
 2. LEDが点灯するまで待機
-3. 設定更新用USBメモリを取り外す
+3. 初期設定 & 設定更新用USBメモリを取り外す
 4. 数分くらいしてから、ThingWorxにデータが届いているか確認する (忘れずに！！！！)
 
 ## デバッグ
