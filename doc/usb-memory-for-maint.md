@@ -6,8 +6,8 @@
 ```bash
 $ cd ./maint-usb-memory
 $ make
-$ dd bs=1M if=setup-usb.iso of=/path/to/usb/memory1
-$ dd bs=1M if=debug-usb.iso of=/path/to/usb/memory2
+$ dd bs=1M if=setup-usb.img of=/path/to/usb/memory1
+$ dd bs=1M if=debug-usb.img of=/path/to/usb/memory2
 ```
 
 ## 自動実行の仕組み
