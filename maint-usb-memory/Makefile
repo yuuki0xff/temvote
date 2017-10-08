@@ -47,7 +47,7 @@ setup-usb.img:
 	sudo fatlabel /dev/loop4p1 ${SETUP_DEV_LABEL}
 	sudo mount /dev/loop4p1 .su-fsroot.tmp
 
-	sudo rsync -rlptv .su-root.tmp .su-fsroot.tmp
+	sudo rsync -rlptv .su-root.tmp/ .su-fsroot.tmp/
 	sudo chown -R root:root .su-fsroot.tmp
 
 	df .su-fsroot.tmp
@@ -74,7 +74,7 @@ debug-usb.img:
 	sudo fatlabel /dev/loop5p1 ${DEBUG_DEV_LABEL}
 	sudo mount /dev/loop5p1 .du-fsroot.tmp
 
-	sudo rsync -rlptv .du-root.tmp .du-fsroot.tmp
+	sudo rsync -rlptv .du-root.tmp/ .du-fsroot.tmp/
 	sudo chown -R root:root .du-fsroot.tmp
 
 	df .du-fsroot.tmp
