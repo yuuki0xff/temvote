@@ -8,3 +8,6 @@
 # disk image files
 /maint-usb-memory/*.img
 /maint-usb-memory/*.img.gz
+
+# secret files
+/maint-usb-memory/config/wpa_supplicant.conf
