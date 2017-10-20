@@ -94,10 +94,11 @@ function setup_new_node() {
 
 function install_wifi_config() {
     install -Cd -o root -g root -m 700 /etc/wpa_supplicant
-    install -C  -o root -g root -m 600 "${SELF_DIR}/config/wpa_supplicant.conf" /etc/wpa_supplicant/wlan0.conf
-    install -C  -o root -g root -m 644 "${SELF_DIR}/config/interfaces-wlan.conf" /etc/network/interfaces.d/wlan0.conf
+    install -C  -o root -g root -m 600 "${SELF_DIR}/config/wpa_supplicant.conf" /etc/wpa_supplicant/wpa_supplicant-wlan0.conf
     systemctl restart wpa_supplicant.service
     systemctl restart networking.service
+    systemctl enable wpa_supplicant@wlan0.service
+    systemctl restart wpa_supplicant@wlan0.service
 }
 
 function wait_internet_access() {
