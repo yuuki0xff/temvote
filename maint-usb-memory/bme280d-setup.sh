@@ -11,14 +11,15 @@ sudo apt install -y wireless-tools wpasupplicant
 
 # change hostname and password
 new_hostname=dd if=/dev/urandom bs=10 count=1 |od -x -A none |tr -d ' '
+user_name=pi
 user_password=$(dd if=/dev/urandom bs=10 count=1 |base64)
 echo -n "${new_hostname}" >/etc/hostname
 hostname --file /etc/hostname
-echo "ubuntu:${user_password}" |chpasswd
+echo "${user_name}:${user_password}" |chpasswd
 
 # save hostname and password into USB memory
 cp -a "${SELF_DIR}/host_passwd.list" "${SELF_DIR}/host_passwd.list.tmp"
-echo "${new_hostname}:ubuntu:${user_password}" >>"${SELF_DIR}/host_passwd.list.tmp"
+echo "${new_hostname}:${user_name}:${user_password}" >>"${SELF_DIR}/host_passwd.list.tmp"
 sync
 mv "${SELF_DIR}/host_passwd.list.tmp" "${SELF_DIR}/host_passwd.list"
 sync
@@ -31,7 +32,7 @@ echo
 echo ================================
 echo
 echo "hostname:       ${new_hostname}"
-echo "login user:     ubuntu"
+echo "login user:     ${user_name}"
 echo "login password: ${user_password}"
 echo
 echo ================================

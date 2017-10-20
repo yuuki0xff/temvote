@@ -18,9 +18,9 @@
 多くのRaspberry Piをセットアップするときに、マスターイメージを使用すると時間短縮になります。
 このステップは飛ばしても構いません。
 
-1. MicroSD CardにUbuntu 16.04 LTSのディスクイメージを書き込む
-   https://wiki.ubuntu.com/ARM/RaspberryPi
-2. Raspberry Piの電源を入れ、コンソールからログインする。ユーザ名は`ubuntu`、パスワードは`ubuntu`。
+1. MicroSD CardにRaspbian Stretch Liteのディスクイメージを書き込む
+   https://www.raspberrypi.org/downloads/raspbian/
+2. Raspberry Piの電源を入れ、コンソールからログインする。ユーザ名は`pi`、パスワードは`raspberry`。
 3. 初期設定 & 設定更新用USBメモリを接続
 4. `sudo mount /dev/disk/by-label/bme-setup /mnt`
 5. `sudo /mnt/bme280d-setup-base.sh`
@@ -38,9 +38,9 @@
 
 
 ## 初期設定 (マスターイメージ不使用)
-1. MicroSD CardにUbuntu 16.04 LTSのディスクイメージを書き込む。
-   https://wiki.ubuntu.com/ARM/RaspberryPi
-2. Raspberry Piの電源を入れ、コンソールからログインする。ユーザ名は`ubuntu`、パスワードは`ubuntu`。
+1. MicroSD CardにRaspbian Stretch Liteのディスクイメージを書き込む。
+   https://www.raspberrypi.org/downloads/raspbian/
+2. Raspberry Piの電源を入れ、コンソールからログインする。ユーザ名は`pi`、パスワードは`raspberry`。
 3. 初期設定 & 設定更新用USBメモリを接続
 4. `sudo mount /dev/disk/by-label/bme-setup /mnt`
 5. `sudo /mnt/bme280d-setup.sh`

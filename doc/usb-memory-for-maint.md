@@ -28,7 +28,7 @@ $ dd bs=1M if=debug-usb.img of=/path/to/usb/memory2
    
    
 ## 初期設定 & 設定更新用USBメモリ
-Ubuntuをインストールした直後に実行することを想定したもの。
+Raspbian Stretch Liteをインストールした直後に実行することを想定したもの。
 自動実行はできないため、手動でインストールスクリプトを実行する。
 
 パーティションラベル名: bme-setup
