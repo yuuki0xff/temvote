@@ -7,7 +7,6 @@ export DEBIAN_FRONTEND=noninteractive
 
 sudo apt update
 sudo apt upgrade -y
-sudo apt install -y wireless-tools wpasupplicant
 
 # install network settings
 install -Cd -o root -g root -m 700 /etc/wpa_supplicant
