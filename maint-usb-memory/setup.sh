@@ -108,7 +108,13 @@ function wait_internet_access() {
 
 function upgrade_all_packages() {
     sudo apt update
+    # may be disconnected from the Internet when firmware updated.
+    # so, all package downloads before upgraded.
+    sudo apt upgrade -y --download-only
+    sudo apt install -y --download-only ntpdate
+
     sudo apt upgrade -y
+    sudo apt install -y ntpdate
 }
 
 function install_bme280d_service() {
