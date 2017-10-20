@@ -43,7 +43,7 @@
 2. Raspberry Piの電源を入れ、コンソールからログインする。ユーザ名は`pi`、パスワードは`raspberry`。
 3. 初期設定 & 設定更新用USBメモリを接続
 4. `sudo mount /dev/disk/by-label/bme-setup /mnt`
-5. `sudo /mnt/bme280d-setup.sh`
+5. `sudo /mnt/setup.sh bme280d-setup`
 6. `sudo umount /mnt`
 7. 初期設定 & 設定更新用USBメモリを取り外す
 8. `sudo reboot`

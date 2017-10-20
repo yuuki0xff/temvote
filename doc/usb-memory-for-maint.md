@@ -43,9 +43,7 @@ Raspbian Stretch Liteをインストールした直後に実行することを�
 中身:
 - sha256sum
 - sha256sum.sgn
-- bme280d-setup.sh
-- bme280d-setup-base.sh
-- bme280d-update.sh
+- setup.sh
 - system-reset.sh
 - service/bme280d
 - service/bme280d.service
@@ -66,5 +64,5 @@ Raspbian Stretch Liteをインストールした直後に実行することを�
 中身:
 - sha256sum
 - sha256sum.sgn
-- bme280d-debug.sh
+- setup.sh
 - system-reset.sh
