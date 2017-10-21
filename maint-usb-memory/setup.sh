@@ -130,7 +130,7 @@ function install_bme280d_service() {
 
 function control_debug_services() {
     # action is "start", "stop", "enable" or "disable"
-    action=$1
+    local action=$1
     systemctl "$action" \
         ssh.service \
         getty@tty1.service \
