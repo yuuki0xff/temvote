@@ -5,7 +5,7 @@ action=$1
 mountpath=$2
 complete_msg=$3
 
-devpath=$(awk -v mountpath="$mountpath" '$2==mountpath {print $1}')
+devpath=$(mount |awk -v mountpath="$mountpath" '$2==mountpath {print $1}')
 umount "$mountpath"
 
 echo
@@ -13,10 +13,10 @@ echo ================================
 echo
 echo "$complete_msg"
 echo -n "Please disconnect the USB memory "
-while [ -e "$devpath" ]; then
+while [ -e "$devpath" ]; do
     echo -n .
     sleep 1
-fi
+done
 echo
 echo "USB memory was disconnected."
 
