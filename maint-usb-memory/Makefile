@@ -20,7 +20,7 @@ setup-usb.img.gz: setup-usb.img
 debug-usb.img.gz: debug-usb.img
 	gzip --keep debug-usb.img
 
-setup-usb.img:
+setup-usb.img: setup.conf setup.sh system-reset.sh service/* config/* gpg/*
 	sudo rm -rf .su-img.tmp .su-root.tmp .su-fsroot.tmp
 	mkdir -p .su-root.tmp .su-fsroot.tmp
 
@@ -56,7 +56,7 @@ setup-usb.img:
 	mv .su-img.tmp setup-usb.img
 	sudo rm -rf .su-root.tmp .su-fsroot.tmp
 
-debug-usb.img:
+debug-usb.img: setup.conf setup.sh system-reset.sh
 	sudo rm -rf .du-img.tmp .du-root.tmp .du-fsroot.tmp
 	mkdir -p .du-root.tmp .du-fsroot.tmp
 
