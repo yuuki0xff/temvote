@@ -22,17 +22,18 @@ export DEBIAN_FRONTEND=noninteractive
 export AUTOSSH_POLL=20
 
 SETUP_SH_HELP="
-$SELF bme280d-setup-base
-$SELF bme280d-setup
-$SELF bme280d-debug
+Usage: $SELF bme280d-setup-base
+       $SELF bme280d-setup
+       $SELF bme280d-debug
 
-$SELF setup_new_node <hostname> <user> <password>
-$SELF install_wifi_config
-$SELF wait_internet_access
-$SELF install_bme280d_service
-$SELF control_debug_services <start|stop|enable|disable>
-$SELF start_ssh_tunnel
-$SELF system_reset <reboot|poweroff>
+For Manually Operation:
+  $SELF setup_new_node <hostname> <user> <password>
+  $SELF install_wifi_config
+  $SELF wait_internet_access
+  $SELF install_bme280d_service
+  $SELF control_debug_services <start|stop|enable|disable>
+  $SELF start_ssh_tunnel
+  $SELF system_reset <reboot|poweroff>
 "
 
 NEW_NODE_MSG="
