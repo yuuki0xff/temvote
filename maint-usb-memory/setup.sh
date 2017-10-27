@@ -173,7 +173,7 @@ function system_reset() {
 
     if [ -z "${TEMVOTE_NOREBOOT:-}" ]; then
         cp -a "${SELF_DIR}/system-reset.sh" "/tmp"
-        exec bash /tmp/system-reset.sh "action" "$SELF_DIR" "$message"
+        exec bash /tmp/system-reset.sh "$action" "$SELF_DIR" "$message"
     fi
     exit
 }
