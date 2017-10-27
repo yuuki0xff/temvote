@@ -1,0 +1,13 @@
+
+[Unit]
+Description=Mount of setup usb memory
+Documentation=https://github.com/yuuki0xff/temvote/tree/master/doc/usb-memory-for-maint.md
+
+[Mount]
+What=/dev/disk/by-label/bme-setup
+Where=/mnt/bmesetup/
+Options=rw
+LazyUnmount=on
+
+[Install]
+WantedBy=multi-user.target
