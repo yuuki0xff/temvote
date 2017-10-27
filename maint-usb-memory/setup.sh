@@ -125,7 +125,7 @@ function install_wifi_config() {
 }
 
 function wait_internet_access() {
-    until curl --connect-timeout 5 http://example.com; do
+    until curl --connect-timeout 5 http://example.com &>/dev/null; do
         sleep 5
     done
 }
