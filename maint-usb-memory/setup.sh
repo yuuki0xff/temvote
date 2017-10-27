@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-set -euvx
+set -eu
+
+exec 20>>/var/tmp/temvote-setup.$(date +%04Y%02m%02d%02H%02M%02S).log
+export BASH_XTRACEFD=20
+set -x
+
 SELF=$(readlink -f "$0")
 SELF_DIR=$(dirname "$SELF")
 . "${SELF_DIR}/setup.conf"
