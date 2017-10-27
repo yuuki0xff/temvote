@@ -2,8 +2,24 @@
 set -euvx
 SELF=$(readlink -f "$0")
 SELF_DIR=$(dirname "$SELF")
+. "${SELF_DIR}/setup.conf"
+
+SSH_PRV_KEY=${SELF_DIR}/ssh/id_rsa.pub
+SSH_JUMP_HOST=${SSH_JUMP_HOST:-}
+REMOTE_SSH_SOCKET=${REMOTE_SSH_SOCKET:-}
+
+if [ -n "$SSH_JUMP_HOST" ]; then
+    echo 'ERROR: Should set $SSH_JUMP_HOST=user@host'
+    exit 1
+fi >&2
+if [ -n "$REMOTE_SSH_SOCKET" ]; then
+    echo 'ERROR: Should set $REMOTE_SSH_SOCKET'
+    exit 1
+fi >&2
+
 export TEMVOTE_NOREBOOT="${TEMVOTE_NOREBOOT:-}"
 export DEBIAN_FRONTEND=noninteractive
+export AUTOSSH_POLL=20
 
 SETUP_SH_HELP="
 $SELF bme280d-setup-base
@@ -15,6 +31,7 @@ $SELF install_wifi_config
 $SELF wait_internet_access
 $SELF install_bme280d_service
 $SELF control_debug_services <start|stop|enable|disable>
+$SELF start_ssh_tunnel
 $SELF system_reset <reboot|poweroff>
 "
 
@@ -112,10 +129,10 @@ function upgrade_all_packages() {
     # may be disconnected from the Internet when firmware updated.
     # so, all package downloads before upgraded.
     sudo apt upgrade -y --download-only
-    sudo apt install -y --download-only ntpdate
+    sudo apt install -y --download-only ntpdate autossh
 
     sudo apt upgrade -y
-    sudo apt install -y ntpdate
+    sudo apt install -y ntpdate autossh
 }
 
 function install_bme280d_service() {
@@ -138,6 +155,10 @@ function control_debug_services() {
         getty@tty3.service \
         getty@tty4.service \
         getty@tty5.service
+}
+
+function start_ssh_tunnel() {
+    autossh -R "${REMOTE_SSH_SOCKET}:localhost:22" "$SSH_JUMP_HOST"
 }
 
 function system_reset() {
@@ -174,6 +195,7 @@ case "$1" in
         ;;
     bme280d-debug)
         control_debug_services start
+        start_ssh_tunnel
         system_reset reboot "When finish debugging, please disconnect the USB memory."
         ;;
     *)

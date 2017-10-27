@@ -10,4 +10,5 @@
 /maint-usb-memory/*.img.gz
 
 # secret files
+/maint-usb-memory/setup.conf
 /maint-usb-memory/config/wpa_supplicant.conf
