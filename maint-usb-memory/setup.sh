@@ -178,6 +178,9 @@ if [ $# = 0 ]; then
     exit 1
 fi
 case "$1" in
+    --help|help)
+        echo -n "$SETUP_SH_HELP"
+        ;;
     bme280d-setup-base)
         # setup without bme280d service
         install_wifi_config
