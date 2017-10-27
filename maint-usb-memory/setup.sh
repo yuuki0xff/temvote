@@ -8,11 +8,11 @@ SSH_PRV_KEY=${SELF_DIR}/ssh/id_rsa.pub
 SSH_JUMP_HOST=${SSH_JUMP_HOST:-}
 REMOTE_SSH_SOCKET=${REMOTE_SSH_SOCKET:-}
 
-if [ -n "$SSH_JUMP_HOST" ]; then
+if [ -z "$SSH_JUMP_HOST" ]; then
     echo 'ERROR: Should set $SSH_JUMP_HOST=user@host'
     exit 1
 fi >&2
-if [ -n "$REMOTE_SSH_SOCKET" ]; then
+if [ -z "$REMOTE_SSH_SOCKET" ]; then
     echo 'ERROR: Should set $REMOTE_SSH_SOCKET'
     exit 1
 fi >&2
