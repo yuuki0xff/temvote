@@ -27,18 +27,18 @@ export DEBIAN_FRONTEND=noninteractive
 export AUTOSSH_POLL=20
 
 SETUP_SH_HELP="
-Usage: $SELF bme280d-setup-base
-       $SELF bme280d-setup
-       $SELF bme280d-debug
+Usage: sudo $SELF bme280d-setup-base
+       sudo $SELF bme280d-setup
+       sudo $SELF bme280d-debug
 
 For Manually Operation:
-  $SELF setup_new_node <hostname> <user> <password>
-  $SELF install_wifi_config
-  $SELF wait_internet_access
-  $SELF install_bme280d_service
-  $SELF control_debug_services <start|stop|enable|disable>
-  $SELF start_ssh_tunnel
-  $SELF system_reset <reboot|poweroff>
+  sudo $SELF setup_new_node <hostname> <user> <password>
+  sudo $SELF install_wifi_config
+  sudo $SELF wait_internet_access
+  sudo $SELF install_bme280d_service
+  sudo $SELF control_debug_services <start|stop|enable|disable>
+  sudo $SELF start_ssh_tunnel
+  sudo $SELF system_reset <reboot|poweroff>
 "
 
 NEW_NODE_MSG="
