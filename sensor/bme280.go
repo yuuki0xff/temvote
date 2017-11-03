@@ -168,7 +168,7 @@ func (sensor *BME280) initDigH() error {
 	buf := digH.Next(3)
 	sensor.digH4 = int32((buf[0] << 4) | (buf[1] & 0x0f))
 	sensor.digH5 = int32((buf[2] << 4) | ((buf[1] >> 4) & 0x0f))
-	sensor.digH6 = int32(digH.Next(1)[0])
+	sensor.digH6 = int32(ByteToInt8(digH.Next(1)[0]))
 	return nil
 }
 
@@ -248,4 +248,8 @@ func (raw RawResult) compensateH() float32 {
 
 func Uint16ToInt16(value uint16) int16 {
 	return -(int16)(value & 0x8000) | (int16)(value&0x7fff)
+}
+
+func ByteToInt8(value byte) int8 {
+	return -(int8)(value & 0x80) | (int8)(value&0x7f)
 }
