@@ -5,7 +5,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/path/to/bme280d
+ExecStart=/srv/bme280d/bin/bme280d
 User=daemon
 Group=daemon
 
