@@ -2,7 +2,7 @@
 [Unit]
 Description=Change to debug mode
 Documentation=https://github.com/yuuki0xff/temvote/tree/master/doc/usb-memory-for-maint.md
-After=mnt-bme-debug.automount
+After=mnt-bmedebug.mount
 RequiresMountsFor=/mnt/bmedebug/
 
 [Service]
