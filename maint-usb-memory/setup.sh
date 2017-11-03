@@ -151,6 +151,12 @@ function install_bme280d_service() {
     systemctl enable bme280d.service
 }
 
+function enable_i2c() {
+    # NOTE: 0 is enable
+    #       1 is disable
+    raspi-config nonint do_i2c 0
+}
+
 function control_debug_services() {
     # action is "start", "stop", "enable" or "disable"
     local action=$1
@@ -191,6 +197,7 @@ case "$1" in
         install_wifi_config
         wait_internet_access
         upgrade_all_packages
+        enable_i2c
         system_reset poweroff "Finished basic setup."
         ;;
     bme280d-setup)
@@ -199,6 +206,7 @@ case "$1" in
         wait_internet_access
         install_bme280d_service
         upgrade_all_packages
+        enable_i2c
         control_debug_services disable
         system_reset reboot "Finished all setup."
         ;;
