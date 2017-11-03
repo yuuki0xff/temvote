@@ -102,8 +102,12 @@ func (sensor *BME280) init() error {
 	}
 
 	// adjust temperature and pressure value
-	sensor.initDigPT() // TODO: check error
-	sensor.initDigH()  // TODO: check error
+	if err := sensor.initDigPT(); err != nil {
+		return err
+	}
+	if err := sensor.initDigH(); err != nil {
+		return err
+	}
 	return nil
 }
 
