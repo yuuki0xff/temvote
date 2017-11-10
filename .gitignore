@@ -1,8 +1,9 @@
 /nbproject/
 /static.deploy/
 
-# binary files
+# temporary files
 /maint-usb-memory/service/bme280d
+/maint-usb-memory/service/requirements.txt
 
 # disk image files
 /maint-usb-memory/*.img
