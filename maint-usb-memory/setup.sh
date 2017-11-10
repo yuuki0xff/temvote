@@ -147,7 +147,7 @@ function upgrade_all_packages() {
 
 function install_ntpdated() {
     install -C  -o root -g root   -m 755 "${SELF_DIR}/service/ntpdated.service" /etc/systemd/system/ntpdated.service
-    install -C  -o root -g root   -m 755 "${SELF_DIR}/timer/ntpdated.timer" /etc/systemd/system/ntpdated.timer
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/service/ntpdated.timer" /etc/systemd/system/ntpdated.timer
     systemctl daemon-reload
     systemctl enable ntpdated.service ntpdated.timer
 }
