@@ -284,10 +284,10 @@ def main() -> int:
         # main loop
         is_first = True
         while True:
-            if not is_first:
+            if is_first:
                 is_first = False
-            else:
                 logger.debug('Sleep for {}s'.format(interval))
+            else:
                 time.sleep(interval)
 
             try:
