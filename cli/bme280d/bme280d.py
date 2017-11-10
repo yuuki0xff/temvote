@@ -3,6 +3,7 @@
 from smbus2 import SMBus
 import requests
 import requests.adapters
+import pytz
 import time
 import os
 import json
@@ -241,7 +242,11 @@ class Thing:
             dt = datetime.datetime.strptime(res.headers['Date'], self._HTTP_DATE_FORMAT)
         else:
             dt = datetime.datetime.utcnow()
-        return dt.isoformat()
+
+        # isoformat()の出力にtimezoneをつける。
+        isodt = dt.replace(tzinfo=pytz.utc).isoformat()
+        logger.debug('time: {}'.format(isodt))
+        return isodt
 
 
 def main() -> int:
