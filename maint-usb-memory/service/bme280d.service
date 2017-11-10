@@ -7,8 +7,6 @@ After=network.target
 Type=simple
 EnvironmentFile=/srv/bme280d/conf/bme280d.conf
 ExecStart=/srv/bme280d/bin/bme280d
-User=daemon
-Group=daemon
 
 Restart=always
 RestartSec=1m
