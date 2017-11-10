@@ -148,8 +148,10 @@ function install_bme280d_service() {
     install -Cd -o root -g root   -m 755 /srv
     install -Cd -o root -g root   -m 755 /srv/bme280d/
     install -Cd -o root -g root   -m 755 /srv/bme280d/bin/
+    install -Cd -o root -g daemon -m 750 /srv/bme280d/conf/
     install -C  -o root -g daemon -m 750 "${SELF_DIR}/service/bme280d" /srv/bme280d/bin/bme280d
     install -C  -o root -g root   -m 600 "${SELF_DIR}/service/bme280d.service" /etc/systemd/system/bme280d.service
+    install -C  -o root -g root   -m 600 "${SELF_DIR}/service/bme280d.conf" /srv/bme280d/conf/bme280d.conf
     systemctl daemon-reload
     systemctl enable bme280d.service
 }

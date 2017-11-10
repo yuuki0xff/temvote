@@ -5,6 +5,7 @@ After=network.target
 
 [Service]
 Type=simple
+EnvironmentFile=/srv/bme280d/conf/bme280d.conf
 ExecStart=/srv/bme280d/bin/bme280d
 User=daemon
 Group=daemon

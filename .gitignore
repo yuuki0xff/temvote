@@ -4,6 +4,7 @@
 # temporary files
 /maint-usb-memory/service/bme280d
 /maint-usb-memory/service/requirements.txt
+/maint-usb-memory/service/bme280d.conf
 
 # disk image files
 /maint-usb-memory/*.img
