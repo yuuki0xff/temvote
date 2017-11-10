@@ -181,6 +181,14 @@ class Thing:
         'Accept': 'application/json',
     }
 
+    __slots__ = (
+        'endpoint_url',
+        'app_key',
+        'thing_name',
+        'timeout',
+        '_session',
+    )
+
     def __init__(self, endpoint: str, app_key: str, thing_name: str, retries: int = 3, timeout: float = 10):
         self.endpoint_url = endpoint
         self.app_key = app_key
