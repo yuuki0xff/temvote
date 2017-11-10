@@ -150,6 +150,7 @@ function install_ntpdated() {
     install -C  -o root -g root   -m 755 "${SELF_DIR}/service/ntpdated.timer" /etc/systemd/system/ntpdated.timer
     systemctl daemon-reload
     systemctl enable ntpdated.service ntpdated.timer
+    systemctl start ntpdated.service ntpdated.timer
 }
 
 function install_bme280d_service() {
