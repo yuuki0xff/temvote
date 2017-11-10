@@ -8,6 +8,7 @@ import os
 import json
 import datetime
 import logging as _logging
+import traceback
 
 LOG_FORMAT = '%(asctime)s [%(levelname)s] %(name)s:%(filename)s:%(lineno)d %(msg)s'
 logger = _logging.getLogger(__name__)
@@ -278,7 +279,10 @@ def main() -> int:
             bme280.setup()
             logger.info('Finished setup of the BME280 sensor')
         except Exception as e:
-            logger.critical('Failed to setup the BME280 sensor: {}'.format(e))
+            logger.critical('Failed to setup the BME280 sensor: {}\n{}'.format(
+                e,
+                traceback.format_exc()
+            ))
             return 1
 
         # main loop
@@ -294,7 +298,10 @@ def main() -> int:
                 logger.debug('Measuring')
                 temperature, pressure, humidity = bme280.measure()
             except Exception as e:
-                logger.error('Failed to measurement: {}'.format(e))
+                logger.error('Failed to measurement: {}\n{}'.format(
+                    e,
+                    traceback.format_exc(),
+                ))
                 continue
 
             params = {
@@ -308,7 +315,10 @@ def main() -> int:
                 logger.debug('Updating thing properties')
                 thing.set(params)
             except Exception as e:
-                logger.error('Failed to update thing properties: {}'.format(e))
+                logger.error('Failed to update thing properties: {}\n{}'.format(
+                    e,
+                    traceback.format_exc(),
+                ))
                 continue
     except KeyboardInterrupt:
         logger.info('Exiting because KeyboardInterrupt was received')
@@ -317,4 +327,3 @@ def main() -> int:
 
 if __name__ == '__main__':
     exit(main())
-
