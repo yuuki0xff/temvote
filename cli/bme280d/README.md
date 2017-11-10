@@ -8,7 +8,7 @@ This daemon needs below:
 ## How to use
 ```bash
 $ export BME280D_THINGWORX_URL=https://example.com/Thingworx
-$ export BME280D_THINGWORX_APP_KEY=xxxxx
+$ export BME280D_THINGWORX_API_KEY=xxxxx
 $ export BME280D_THING_NAME=thing-name
 $ export BME280D_I2C_BUS_NUMBER=1
 $ export BME280D_MEASUREMENT_INTERVAL=30  # seconds
