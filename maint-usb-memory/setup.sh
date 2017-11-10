@@ -35,7 +35,9 @@ For Manually Operation:
   sudo $SELF setup_new_node <hostname> <user> <password>
   sudo $SELF install_wifi_config
   sudo $SELF wait_internet_access
+  sudo $SELF upgrade_all_packages
   sudo $SELF install_bme280d_service
+  sudo $SELF enable_i2c
   sudo $SELF control_debug_services <start|stop|enable|disable>
   sudo $SELF start_ssh_tunnel
   sudo $SELF system_reset <reboot|poweroff>
