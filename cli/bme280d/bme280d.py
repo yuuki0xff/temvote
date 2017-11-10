@@ -221,7 +221,7 @@ class Thing:
 
     def _prop_url(self, name: str) -> str:
         return self._THING_PROP_URL_TMPL.format(
-            endpoint=self.endpoint_url,
+            endpoint_url=self.endpoint_url,
             thing_name=self.thing_name,
             name=name,
             app_key=self.app_key,
@@ -285,9 +285,10 @@ def main() -> int:
         is_first = True
         while True:
             if not is_first:
+                is_first = False
+            else:
                 logger.debug('Sleep for {}s'.format(interval))
                 time.sleep(interval)
-                is_first = False
 
             try:
                 logger.debug('Measuring')
