@@ -135,10 +135,10 @@ function upgrade_all_packages() {
     # may be disconnected from the Internet when firmware updated.
     # so, all package downloads before upgraded.
     sudo apt upgrade -y --download-only
-    sudo apt install -y --download-only ntpdate autossh
+    sudo apt install -y --download-only ntpdate autossh python3
 
     sudo apt upgrade -y
-    sudo apt install -y ntpdate autossh
+    sudo apt install -y ntpdate autossh python3
 }
 
 function install_bme280d_service() {
