@@ -217,7 +217,7 @@ class Thing:
             timeout=self.timeout,
         )
         if res.status_code != 200:
-            raise requests.HTTPError(response=res)
+            raise requests.HTTPError('invalid status code: {}'.format(res.status_code), res, response=res)
         return res
 
     def _prop_url(self, name: str) -> str:
