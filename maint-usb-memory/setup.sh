@@ -36,6 +36,7 @@ For Manually Operation:
   sudo $SELF install_wifi_config
   sudo $SELF wait_internet_access
   sudo $SELF upgrade_all_packages
+  sudo $SELF install_ntpdated
   sudo $SELF install_bme280d_service
   sudo $SELF enable_i2c
   sudo $SELF control_debug_services <start|stop|enable|disable>
@@ -144,6 +145,13 @@ function upgrade_all_packages() {
     sudo python3 -m pip install -r "$SELF_DIR/service/requirements.txt"
 }
 
+function install_ntpdated() {
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/service/ntpdated.service" /etc/systemd/system/ntpdated.service
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/timer/ntpdated.timer" /etc/systemd/system/ntpdated.timer
+    systemctl daemon-reload
+    systemctl enable ntpdated.service ntpdated.timer
+}
+
 function install_bme280d_service() {
     install -Cd -o root -g root   -m 755 /srv
     install -Cd -o root -g root   -m 755 /srv/bme280d/
@@ -209,6 +217,7 @@ case "$1" in
         # install configurations, bme280d service, and upgrade installed packages.
         install_wifi_config
         wait_internet_access
+        install_ntpdated
         install_bme280d_service
         upgrade_all_packages
         enable_i2c

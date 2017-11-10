@@ -1,0 +1,13 @@
+[Unit]
+Description = Adjust time
+
+[Timer]
+OnBootSec=10
+OnUnitActiveSec = 6h
+
+# This option require of systemd >= 229
+# But systemd == 215
+# RandomizedDelaySec = 10m
+
+[Install]
+WantedBy = timers.target
