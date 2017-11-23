@@ -26,7 +26,6 @@ type RouterOption struct {
 	StaticDir    string `envconfig:"STATIC_DIR"`
 	SecretFile   string `envconfig:"SECRET_FILE"`
 	MetricsFile  string `envconfig:"METRICS_FILE"`
-	CookieSecret string `envconfig:"COOKIE_SECRET"`
 	DBDriver     string `envconfig:"DB_DRIVER"`
 	DBUrl        string `envconfig:"DB_URL"`
 	ThingWorxURL string `envconfig:"THINGWORX_URL"`
