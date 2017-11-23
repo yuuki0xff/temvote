@@ -85,24 +85,25 @@ func NewSession(w http.ResponseWriter, req *http.Request, tx *sql.Tx) (*Session,
 	secret := hex.EncodeToString(randomData)
 	secretSHA256 := sha256.Sum256([]byte(randomData))
 
-	if _, err := tx.Exec(`
+	res, err := tx.Exec(`
 		INSERT INTO session(
 			secret_sha256,
 			expire
 		) VALUES (?, ?)`,
 		hex.EncodeToString(secretSHA256[:]),
 		time.Now().Add(COOKIE_MAX_AGE*time.Second),
-	); err != nil {
+	)
+	if err != nil {
 		return nil, err
 	}
 
-	var sid uint64
-	row := tx.QueryRow(`SELECT LAST_INSERT_ID()`)
-	if err := row.Scan(&sid); err != nil {
+	sid, err := res.LastInsertId()
+	if err != nil {
 		return nil, err
 	}
+
 	return &Session{
-		SessionID: sid,
+		SessionID: uint64(sid),
 		req:       req,
 		w:         w,
 		tx:        tx,
