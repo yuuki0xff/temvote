@@ -9,6 +9,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	_ "github.com/mattn/go-sqlite3"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -24,6 +25,7 @@ type RouterOption struct {
 	StaticDir       string `envconfig:"STATIC_DIR"`
 	DBDriver        string `envconfig:"DB_DRIVER"`
 	DBUrl           string `envconfig:"DB_URL"`
+	DBInitSQLFile   string `envconfig:"DB_INIT_SQL_FILE"`
 	ThingWorxURL    string `envconfig:"THINGWORX_URL"`
 	ThingWorxAppKey string `envconfig:"THINGWORX_APP_KEY"`
 }
@@ -252,11 +254,32 @@ func main() {
 	var opt RouterOption
 	envconfig.Process("TEMVOTE", &opt)
 
+	var requireInitDB bool
+	if opt.DBDriver == "sqlite3" {
+		_, err := os.Stat(opt.DBUrl)
+		requireInitDB = os.IsNotExist(err)
+	}
 	db, err := sql.Open(opt.DBDriver, opt.DBUrl)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
+
+	if requireInitDB {
+		log.Println("Initializing database ...")
+		sqlFile, err := os.Open(opt.DBInitSQLFile)
+		if err != nil {
+			panic(err)
+		}
+		sql, err := ioutil.ReadAll(sqlFile)
+		if err != nil {
+			panic(err)
+		}
+		if _, err := db.Exec(string(sql)); err != nil {
+			panic(err)
+		}
+		log.Println("Initializing database ... done")
+	}
 
 	router := getRouter(opt, db, ctx)
 	if err := startHttpServer(ctx, router); err != nil {

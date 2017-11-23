@@ -12,6 +12,8 @@ $ export TEMVOTE_STATIC_DIR=./static
 $ export TEMVOTE_DB_DRIVER=mysql
   # See https://github.com/go-sql-driver/mysql#examples
 $ export TEMVOTE_DB_URL=user:password@tcp(db.example.com:3306)/dbname
+$ export TEMVOTE_DB_INIT_SQL_FILE=./db.sqlite3.sql
+  # If using sqlite3 database, you can execute sql statements for database initialization.
 $ export TEMVOTE_THINGWORX_URL=https://user:passwd@example.com/Thingworx
 $ export TEMVOTE_THINGWORX_APP_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 $ touch ./secret.conf
