@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"syscall"
 )
 
@@ -23,6 +24,7 @@ const (
 
 type RouterOption struct {
 	StaticDir       string `envconfig:"STATIC_DIR"`
+	TemplateDir     string `envconfig:"TEMPLATE_DIR"`
 	DBDriver        string `envconfig:"DB_DRIVER"`
 	DBUrl           string `envconfig:"DB_URL"`
 	DBInitSQLFile   string `envconfig:"DB_INIT_SQL_FILE"`
@@ -36,8 +38,11 @@ type StatusAPIResponse struct {
 }
 
 func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
+	if opt.TemplateDir == "" {
+		opt.TemplateDir = "."
+	}
 	staticHandler := http.FileServer(http.Dir(opt.StaticDir))
-	tmpl, err := template.ParseGlob("template/*.html")
+	tmpl, err := template.ParseGlob(path.Join(opt.TemplateDir, "*.html"))
 	if err != nil {
 		panic(err)
 	}

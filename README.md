@@ -9,6 +9,7 @@ $ make
 $ go build
 
 $ export TEMVOTE_STATIC_DIR=./static
+$ export TEMVOTE_TEMPLATE_DIR=./template
 $ export TEMVOTE_DB_DRIVER=mysql
   # See https://github.com/go-sql-driver/mysql#examples
 $ export TEMVOTE_DB_URL=user:password@tcp(db.example.com:3306)/dbname
