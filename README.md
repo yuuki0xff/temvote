@@ -15,6 +15,7 @@ $ export TEMVOTE_DB_DRIVER=mysql
   # See https://github.com/go-sql-driver/mysql#examples
 $ export TEMVOTE_DB_URL=user:password@tcp(db.example.com:3306)/dbname
 $ export TEMVOTE_THINGWORX_URL=https://user:passwd@example.com/Thingworx
+$ export TEMVOTE_THINGWORX_APP_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 $ touch ./secret.conf
 $ ./temvote
 ```

@@ -23,12 +23,13 @@ const (
 )
 
 type RouterOption struct {
-	StaticDir    string `envconfig:"STATIC_DIR"`
-	SecretFile   string `envconfig:"SECRET_FILE"`
-	MetricsFile  string `envconfig:"METRICS_FILE"`
-	DBDriver     string `envconfig:"DB_DRIVER"`
-	DBUrl        string `envconfig:"DB_URL"`
-	ThingWorxURL string `envconfig:"THINGWORX_URL"`
+	StaticDir       string `envconfig:"STATIC_DIR"`
+	SecretFile      string `envconfig:"SECRET_FILE"`
+	MetricsFile     string `envconfig:"METRICS_FILE"`
+	DBDriver        string `envconfig:"DB_DRIVER"`
+	DBUrl           string `envconfig:"DB_URL"`
+	ThingWorxURL    string `envconfig:"THINGWORX_URL"`
+	ThingWorxAppKey string `envconfig:"THINGWORX_APP_KEY"`
 }
 
 type StatusAPIResponse struct {
@@ -44,7 +45,8 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 	}
 
 	thingworx := &ThingWorxClient{
-		URL: opt.ThingWorxURL,
+		URL:    opt.ThingWorxURL,
+		AppKey: opt.ThingWorxAppKey,
 	}
 
 	rsm := NewRoomStatusManager(db, thingworx, ctx)

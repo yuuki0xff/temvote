@@ -11,11 +11,15 @@ import (
 type ThingName string
 
 type ThingWorxClient struct {
-	URL string
+	URL    string
+	AppKey string
 }
 
 func (tw *ThingWorxClient) Properties(name ThingName) (dproxy.Proxy, error) {
 	url := fmt.Sprintf("%s/Things/%s/Properties/", tw.URL, string(name))
+	if tw.AppKey != "" {
+		url += "?appKey=" + tw.AppKey
+	}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
