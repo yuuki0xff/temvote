@@ -9,13 +9,11 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	_ "github.com/mattn/go-sqlite3"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 const (
@@ -24,8 +22,6 @@ const (
 
 type RouterOption struct {
 	StaticDir       string `envconfig:"STATIC_DIR"`
-	SecretFile      string `envconfig:"SECRET_FILE"`
-	MetricsFile     string `envconfig:"METRICS_FILE"`
 	DBDriver        string `envconfig:"DB_DRIVER"`
 	DBUrl           string `envconfig:"DB_URL"`
 	ThingWorxURL    string `envconfig:"THINGWORX_URL"`
@@ -50,14 +46,6 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 	}
 
 	rsm := NewRoomStatusManager(db, thingworx, ctx)
-	sm, err := NewSecretManager(opt.SecretFile)
-	if err != nil {
-		panic(err)
-	}
-	mw, err := NewMetricsWriter(opt.MetricsFile)
-	if err != nil {
-		panic(err)
-	}
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api/v1/status", func(w http.ResponseWriter, req *http.Request) {
@@ -167,36 +155,6 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		tx.Commit()
 		w.WriteHeader(200)
 		w.Write(js)
-	}).Methods("POST")
-
-	router.HandleFunc("/metrics", func(w http.ResponseWriter, req *http.Request) {
-		hostid := req.Header.Get("X-HOSTID")
-		secret := req.Header.Get("X-SECRET")
-		if !sm.hasAuth(hostid, secret) {
-			w.WriteHeader(400)
-			return
-		}
-
-		tag := req.Header.Get("X-TAG")
-		rawBody, err := ioutil.ReadAll(req.Body)
-		if err != nil {
-			log.Println("ERROR:", err)
-			w.WriteHeader(500)
-			println(err.Error(), req.ContentLength)
-			return
-		}
-
-		if err := mw.Write(Metrics{
-			HostID:    hostid,
-			Tag:       tag,
-			Body:      string(rawBody),
-			Timestamp: time.Now().Unix(),
-		}); err != nil {
-			log.Println("ERROR:", err)
-			w.WriteHeader(500)
-			println(err.Error())
-			return
-		}
 	}).Methods("POST")
 
 	router.Handle("/", http.RedirectHandler("/select_room.html", 303)).Methods("GET")
