@@ -24,7 +24,6 @@ const (
 
 type RouterOption struct {
 	StaticDir    string `envconfig:"STATIC_DIR"`
-	DeployDir    string `envconfig:"DEPLOY_DIR"`
 	SecretFile   string `envconfig:"SECRET_FILE"`
 	MetricsFile  string `envconfig:"METRICS_FILE"`
 	CookieSecret string `envconfig:"COOKIE_SECRET"`
@@ -40,7 +39,6 @@ type StatusAPIResponse struct {
 
 func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 	staticHandler := http.FileServer(http.Dir(opt.StaticDir))
-	deployHandler := http.FileServer(http.Dir(opt.DeployDir))
 	tmpl, err := template.ParseGlob("template/*.html")
 	if err != nil {
 		panic(err)
@@ -200,17 +198,6 @@ func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
 		}
 	}).Methods("POST")
 
-	deployFileServer := http.StripPrefix("/deploy/", deployHandler)
-	router.HandleFunc("/deploy/{name:.*}", func(w http.ResponseWriter, req *http.Request) {
-		hostid := req.Header.Get("X-HOSTID")
-		secret := req.Header.Get("X-SECRET")
-		if !sm.hasAuth(hostid, secret) {
-			w.WriteHeader(400)
-			return
-		}
-
-		deployFileServer.ServeHTTP(w, req)
-	}).Methods("GET")
 	router.Handle("/", http.RedirectHandler("/select_room.html", 303)).Methods("GET")
 	router.HandleFunc("/vote/{roomid}", func(w http.ResponseWriter, req *http.Request) {
 		tx, err := rsm.GetTx(w, req, false)

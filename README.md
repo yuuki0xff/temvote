@@ -9,7 +9,6 @@ $ make
 $ go build
 
 $ export TEMVOTE_STATIC_DIR=./static
-$ export TEMVOTE_DEPLOY_DIR=./static.deploy
 $ export TEMVOTE_SECRET_FILE=./secret.conf
 $ export TEMVOTE_METRICS_FILE=./metrics.jsonl
 $ export TEMVOTE_COOKIE_SECRET="encryption key"
