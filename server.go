@@ -38,6 +38,9 @@ type StatusAPIResponse struct {
 }
 
 func getRouter(opt RouterOption, db *sql.DB, ctx context.Context) *mux.Router {
+	if opt.StaticDir == "" {
+		opt.StaticDir = "."
+	}
 	if opt.TemplateDir == "" {
 		opt.TemplateDir = "."
 	}
