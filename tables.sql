@@ -18,6 +18,6 @@ INSERT INTO `room` VALUES
   (17, '講実401', '講義実験棟', 4);
 
 INSERT INTO `thing` VALUES
-  (1, 17, 'Room1_yuuki', 60),
-  (2, 13, 'Room2_yuuki', 60);
+  (1, 1, 'TemperatureSensor1_yuuki', 60),
+  (2, 1, 'TemperatureSensor2_yuuki', 60);
 
