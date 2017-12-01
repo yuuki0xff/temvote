@@ -368,7 +368,7 @@ func (rsm *RoomStatusManager) updateSensorStatus(id RoomID, thingName ThingName)
 	stat.expire = time.Now().Add(CACHE_EXPIRE)
 
 	// 最終更新時刻が現在時刻から60秒以上ずれていたら、未接続と見なす
-	if math.Abs(float64(time.Now().Unix()-stat.lastUpdated)) < 60 {
+	if math.Abs(float64(time.Now().Unix()-stat.lastUpdated)) >= 60 {
 		log.Printf("WARN: \"%s\" is not connected. now=%d, lastUpdated=%d", thingName, time.Now().Unix(), stat.lastUpdated)
 		return nil
 	}
