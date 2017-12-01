@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"math"
 	"net/http"
 	"sync"
 	"time"
@@ -51,7 +52,7 @@ type RoomStatusTx struct {
 type SensorStatus struct {
 	Temperature float64 `json:"temperature"`
 	Humidity    float64 `json:"humidity"`
-	IsConnected bool    `json:"isConnected"`
+	lastUpdated int64   `json:"lastUpdated"` // unix time (second)
 
 	expire time.Time
 }
@@ -358,14 +359,17 @@ func (rsm *RoomStatusManager) updateSensorStatus(id RoomID, thingName ThingName)
 	if err != nil {
 		return err
 	}
-	stat.IsConnected, err = prop.M("isConnected").Bool()
+	stat.lastUpdated, err = prop.M("lastUpdated").Int64()
 	if err != nil {
 		return err
 	}
+	// ミリ秒単位から秒単位に変換
+	stat.lastUpdated /= 1000
 	stat.expire = time.Now().Add(CACHE_EXPIRE)
 
-	if !stat.IsConnected {
-		log.Printf("WARN: \"%s\" is not connected", thingName)
+	// 最終更新時刻が現在時刻から60秒以上ずれていたら、未接続と見なす
+	if math.Abs(float64(time.Now().Unix()-stat.lastUpdated)) < 60 {
+		log.Printf("WARN: \"%s\" is not connected. now=%d, lastUpdated=%d", thingName, time.Now().Unix(), stat.lastUpdated)
 		return nil
 	}
 
