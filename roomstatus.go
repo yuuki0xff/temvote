@@ -52,7 +52,7 @@ type RoomStatusTx struct {
 type SensorStatus struct {
 	Temperature float64 `json:"temperature"`
 	Humidity    float64 `json:"humidity"`
-	LastUpdated int64   `json:"lastUpdated"` // unix time (second)
+	lastUpdated int64   `json:"lastUpdated"` // unix time (second)
 
 	expire time.Time
 }
@@ -359,17 +359,17 @@ func (rsm *RoomStatusManager) updateSensorStatus(id RoomID, thingName ThingName)
 	if err != nil {
 		return err
 	}
-	stat.LastUpdated, err = prop.M("lastUpdated").Int64()
+	stat.lastUpdated, err = prop.M("lastUpdated").Int64()
 	if err != nil {
 		return err
 	}
 	// ミリ秒単位から秒単位に変換
-	stat.LastUpdated /= 1000
+	stat.lastUpdated /= 1000
 	stat.expire = time.Now().Add(CACHE_EXPIRE)
 
 	// 最終更新時刻が現在時刻から60秒以上ずれていたら、未接続と見なす
-	if math.Abs(float64(time.Now().Unix()-stat.LastUpdated)) >= 60 {
-		log.Printf("WARN: \"%s\" is not connected. now=%d, LastUpdated=%d", thingName, time.Now().Unix(), stat.LastUpdated)
+	if math.Abs(float64(time.Now().Unix()-stat.lastUpdated)) >= 60 {
+		log.Printf("WARN: \"%s\" is not connected. now=%d, lastUpdated=%d", thingName, time.Now().Unix(), stat.lastUpdated)
 		return nil
 	}
 
