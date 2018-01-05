@@ -7,7 +7,7 @@ SELF_DIR=$(dirname "$SELF")
 action=$1
 mountpath=$2
 complete_msg=$3
-devpath=$(mount |awk -v mountpath="$mountpath" '$2==mountpath {print $1}')
+devpath=$(mount |awk -v mountpath="$mountpath" '$3==mountpath {print $1}' |grep /dev/)
 
 # blink led lamp until usb memory is disconnected.
 function wait_for_disconnect() {
