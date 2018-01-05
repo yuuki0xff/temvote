@@ -3,8 +3,18 @@ import RPi.GPIO as GPIO
 import time
 import os.path
 import sys
+import signal
+
+
+def raise_keyboard_interrupt(signum, frame):
+    raise KeyboardInterrupt()
+
 
 gpio_id = 17
+
+signal.signal(signal.SIGINT, raise_keyboard_interrupt)
+signal.signal(signal.SIGTERM, raise_keyboard_interrupt)
+signal.signal(signal.SIGHUP, raise_keyboard_interrupt)
 
 GPIO.setmode(GPIO.BCM)
 try:
