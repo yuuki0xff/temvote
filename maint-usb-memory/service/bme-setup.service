@@ -3,7 +3,7 @@
 Description=Setup bme280d service
 Documentation=https://github.com/yuuki0xff/temvote/tree/master/doc/usb-memory-for-maint.md
 After=mnt-bmesetup.mount
-RequiresMountsFor=/mnt/bmesetup/
+RequiresMountsFor=/mnt/bmesetup
 
 [Service]
 Type=oneshot
