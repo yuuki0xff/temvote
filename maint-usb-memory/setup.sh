@@ -54,6 +54,7 @@ login password: %s
 ================================
 "
 
+# turn on led lamp until execute "turn_off_led_lamp" function.
 function turn_on_led_lamp() {
     python2 <<END &
 import RPi.GPIO as GPIO
@@ -74,10 +75,12 @@ END
     led_pid=$!
 }
 
+# turn off led lamp.
 function turn_off_led_lamp() {
     kill "$led_pid"
 }
 
+# blink led lamp while 30 seconds.
 function blink_led_lamp() {
     python2 <<END
 import RPi.GPIO as GPIO
