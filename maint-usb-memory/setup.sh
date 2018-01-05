@@ -173,6 +173,21 @@ function install_autoreboot_service() {
     systemctl start autoreboot.timer
 }
 
+function install_autosetup_service() {
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/service/bme-debug.service" /etc/systemd/system/bme-debug.service
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/service/bme-setup.service" /etc/systemd/system/bme-setup.service
+
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/service/mnt-bmedebug.automount" /etc/systemd/system/mnt-bmedebug.automount
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/service/mnt-bmesetup.automount" /etc/systemd/system/mnt-bmesetup.automount
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/service/mnt-bmedebug.mount" /etc/systemd/system/mnt-bmedebug.mount
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/service/mnt-bmesetup.mount" /etc/systemd/system/mnt-bmesetup.mount
+
+    systemctl daemon-reload
+    systemctl enable \
+        bme-debug.service bme-setup.service \
+        mnt-bmedebug.automount mnt-bmesetup.automount
+}
+
 function enable_i2c() {
     # NOTE: 0 is enable
     #       1 is disable
@@ -219,6 +234,7 @@ case "$1" in
         install_wifi_config
         wait_internet_access
         upgrade_all_packages
+        install_autosetup_service
         enable_i2c
         system_reset poweroff "Finished basic setup."
         ;;
@@ -230,6 +246,7 @@ case "$1" in
         install_bme280d_service
         install_autoreboot_service
         upgrade_all_packages
+        install_autosetup_service
         enable_i2c
         control_debug_services disable
         system_reset reboot "Finished all setup."
