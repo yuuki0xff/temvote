@@ -70,6 +70,7 @@ try:
     while True:
         time.sleep(1)
 finally:
+    GPIO.output(gpio_id, GPIO.LOW)
     GPIO.cleanup()
 END
     led_pid=$!
