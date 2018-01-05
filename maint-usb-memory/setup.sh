@@ -54,6 +54,53 @@ login password: %s
 ================================
 "
 
+function turn_on_led_lamp() {
+    python2 <<END &
+import RPi.GPIO as GPIO
+import time
+
+gpio_id = 17
+
+GPIO.setmode(GPIO.BCM)
+try:
+    GPIO.setup(gpio_id, GPIO.OUT)
+    GPIO.output(gpio_id, GPIO.HIGH)
+
+    while True:
+        time.sleep(1)
+finally:
+    GPIO.cleanup()
+END
+    led_pid=$!
+}
+
+function turn_off_led_lamp() {
+    kill "$led_pid"
+}
+
+function blink_led_lamp() {
+    python2 <<END
+import RPi.GPIO as GPIO
+import time
+import os.path
+import sys
+
+gpio_id = 17
+
+GPIO.setmode(GPIO.BCM)
+try:
+    GPIO.setup(gpio_id, GPIO.OUT)
+
+    for _ in range(30):
+        GPIO.output(gpio_id, GPIO.HIGH)
+        time.sleep(0.5)
+        GPIO.output(gpio_id, GPIO.LOW)
+        time.sleep(0.5)
+finally:
+    GPIO.cleanup()
+END
+}
+
 function _random_hex_str() {
     local length=$1
     dd if=/dev/urandom bs="$length" count=1 |od -x -A none |tr -d ' ' |head --bytes="$length"
@@ -225,6 +272,9 @@ if [ $# = 0 ]; then
     echo -n "$SETUP_SH_HELP"
     exit 1
 fi
+
+turn_on_led_lamp
+ret=0
 case "$1" in
     --help|help)
         echo -n "$SETUP_SH_HELP"
@@ -236,6 +286,7 @@ case "$1" in
         upgrade_all_packages
         install_autosetup_service
         enable_i2c
+        turn_off_led_lamp
         system_reset poweroff "Finished basic setup."
         ;;
     bme280d-setup)
@@ -249,16 +300,22 @@ case "$1" in
         install_autosetup_service
         enable_i2c
         control_debug_services disable
+        turn_off_led_lamp
         system_reset reboot "Finished all setup."
         ;;
     bme280d-debug)
         control_debug_services start
         start_ssh_tunnel
+        turn_off_led_lamp
         system_reset reboot "When finish debugging, please disconnect the USB memory."
         ;;
     *)
         # execute a defined function manually
         "$@"
         ;;
-esac
-
+esac || {
+    ret=$?
+}
+turn_off_led_lamp
+blink_led_lamp
+exit $ret
