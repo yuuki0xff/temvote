@@ -15,9 +15,11 @@ clean:
 	sudo rm -rf .du-img.tmp .du-root.tmp .du-fsroot.tmp
 
 setup-usb.img.gz: setup-usb.img
+	rm -f setup-usb.img.gz
 	gzip --keep setup-usb.img
 
 debug-usb.img.gz: debug-usb.img
+	rm -f debug-usb.img.gz
 	gzip --keep debug-usb.img
 
 setup-usb.img: setup.conf setup.sh system-reset.sh service/* config/* gpg/*
