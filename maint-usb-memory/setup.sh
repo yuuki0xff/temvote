@@ -321,5 +321,8 @@ esac || {
     ret=$?
 }
 turn_off_led_lamp
-blink_led_lamp
+if [ $ret -ne 0 ]; then
+    # if occurred an error, notify error to operator by led lamp.
+    blink_led_lamp
+fi
 exit $ret
