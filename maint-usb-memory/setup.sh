@@ -56,23 +56,7 @@ login password: %s
 
 # turn on led lamp until execute "turn_off_led_lamp" function.
 function turn_on_led_lamp() {
-    python2 <<END &
-import RPi.GPIO as GPIO
-import time
-
-gpio_id = 17
-
-GPIO.setmode(GPIO.BCM)
-try:
-    GPIO.setup(gpio_id, GPIO.OUT)
-    GPIO.output(gpio_id, GPIO.HIGH)
-
-    while True:
-        time.sleep(1)
-finally:
-    GPIO.output(gpio_id, GPIO.LOW)
-    GPIO.cleanup()
-END
+    "$SELF_DIR/led.py" on &
     led_pid=$!
 }
 
@@ -83,26 +67,7 @@ function turn_off_led_lamp() {
 
 # blink led lamp while 30 seconds.
 function blink_led_lamp() {
-    python2 <<END
-import RPi.GPIO as GPIO
-import time
-import os.path
-import sys
-
-gpio_id = 17
-
-GPIO.setmode(GPIO.BCM)
-try:
-    GPIO.setup(gpio_id, GPIO.OUT)
-
-    for _ in range(30):
-        GPIO.output(gpio_id, GPIO.HIGH)
-        time.sleep(0.5)
-        GPIO.output(gpio_id, GPIO.LOW)
-        time.sleep(0.5)
-finally:
-    GPIO.cleanup()
-END
+    "$SELF_DIR/led.py" blink
 }
 
 function _random_hex_str() {
@@ -266,6 +231,7 @@ function system_reset() {
     local message=$2
 
     if [ -z "${TEMVOTE_NOREBOOT:-}" ]; then
+        cp -a "${SELF_DIR}/led.py" "/tmp"
         cp -a "${SELF_DIR}/system-reset.sh" "/tmp"
         exec bash /tmp/system-reset.sh "$action" "$SELF_DIR" "$message"
     fi

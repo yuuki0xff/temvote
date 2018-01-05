@@ -26,7 +26,7 @@ setup-usb.img: setup.conf setup.sh system-reset.sh service/* config/* gpg/*
 	sudo rm -rf .su-img.tmp .su-root.tmp .su-fsroot.tmp
 	mkdir -p .su-root.tmp .su-fsroot.tmp
 
-	cp -a setup.conf setup.sh system-reset.sh .su-root.tmp/
+	cp -a led.py setup.conf setup.sh system-reset.sh .su-root.tmp/
 	cd service && make
 	cp -a service/ .su-root.tmp/
 	rm .su-root.tmp/service/Makefile
@@ -62,7 +62,7 @@ debug-usb.img: setup.conf setup.sh system-reset.sh
 	sudo rm -rf .du-img.tmp .du-root.tmp .du-fsroot.tmp
 	mkdir -p .du-root.tmp .du-fsroot.tmp
 
-	cp -a setup.conf setup.sh system-reset.sh .du-root.tmp/
+	cp -a led.py setup.conf setup.sh system-reset.sh .du-root.tmp/
 
 	cd .du-root.tmp && find -type f -exec sha256sum '{}' '+' |sort >../.du-sha256sum
 	cd .du-root.tmp && mv ../.du-sha256sum sha256sum
