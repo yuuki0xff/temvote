@@ -1,0 +1,14 @@
+[Unit]
+Description = Automatically Reboot at night
+
+[Timer]
+OnBootSec=30m
+OnUnitActiveSec = 6h
+OnCalendar=17:40:20 UTC
+
+# This option require of systemd >= 229
+# But systemd == 215
+# RandomizedDelaySec = 10m
+
+[Install]
+WantedBy = timers.target

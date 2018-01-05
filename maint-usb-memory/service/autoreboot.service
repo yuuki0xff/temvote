@@ -1,0 +1,11 @@
+[Unit]
+Description = Automatically Reboot at night
+
+[Service]
+Type = simple
+ExecStart = /sbin/reboot
+Restart = on-failure
+RestartSec = 30s
+
+[Install]
+WantedBy = network.target

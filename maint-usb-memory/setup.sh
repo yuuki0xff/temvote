@@ -165,6 +165,14 @@ function install_bme280d_service() {
     systemctl enable bme280d.service
 }
 
+function install_autoreboot_service() {
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/service/autoreboot.service" /etc/systemd/system/autoreboot.service
+    install -C  -o root -g root   -m 755 "${SELF_DIR}/service/autoreboot.timer" /etc/systemd/system/autoreboot.timer
+    systemctl daemon-reload
+    systemctl enable autoreboot.timer
+    systemctl start autoreboot.timer
+}
+
 function enable_i2c() {
     # NOTE: 0 is enable
     #       1 is disable
@@ -220,6 +228,7 @@ case "$1" in
         wait_internet_access
         install_ntpdated
         install_bme280d_service
+        install_autoreboot_service
         upgrade_all_packages
         enable_i2c
         control_debug_services disable
