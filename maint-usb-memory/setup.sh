@@ -138,10 +138,10 @@ function upgrade_all_packages() {
     # may be disconnected from the Internet when firmware updated.
     # so, all package downloads before upgraded.
     sudo apt upgrade -y --download-only
-    sudo apt install -y --download-only ntpdate autossh python3 python3-pip
+    sudo apt install -y --download-only ntpdate autossh python3 python3-pip rng-tools
 
     sudo apt upgrade -y
-    sudo apt install -y ntpdate autossh python3 python3-pip
+    sudo apt install -y ntpdate autossh python3 python3-pip rng-tools
     sudo python3 -m pip install -r "$SELF_DIR/service/requirements.txt"
 }
 
