@@ -2,7 +2,6 @@
 [Unit]
 Description=Setup bme280d service
 Documentation=https://github.com/yuuki0xff/temvote/tree/master/doc/usb-memory-for-maint.md
-After=mnt-bmesetup.mount
 RequiresMountsFor=/mnt/bmesetup
 
 [Service]
@@ -11,4 +10,4 @@ ExecStart=/mnt/bmesetup/setup.sh bme280d-setup
 TimeoutStartSec=infinity
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=mnt-bmesetup.mount
