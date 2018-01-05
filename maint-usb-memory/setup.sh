@@ -198,6 +198,8 @@ function install_autosetup_service() {
     install -C  -o root -g root   -m 755 "${SELF_DIR}/service/mnt-bmedebug.mount" /etc/systemd/system/mnt-bmedebug.mount
     install -C  -o root -g root   -m 755 "${SELF_DIR}/service/mnt-bmesetup.mount" /etc/systemd/system/mnt-bmesetup.mount
 
+    mkdir /mnt/bmedebug /mnt/bmesetup
+
     systemctl daemon-reload
     systemctl enable \
         bme-debug.service bme-setup.service \
