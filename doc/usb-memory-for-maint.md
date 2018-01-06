@@ -69,7 +69,7 @@ Raspbian Stretch Liteをインストールした直後に実行することを�
 - service/*.automount
 - service/*.mount
 - config/wpa_supplicant.conf  (Wi-Fiの設定)
-- gpg/*.key  (GPG公開鍵) 
+- gpg/*.gpg  (GPG公開鍵) 
 - host_passwd.list  (setup_new_nodeでの設定内容。書式はホスト名:ユーザ名:パスワード)
 - host_secret.list  (ホスト名とトークンのリスト。未使用)
 
