@@ -4,6 +4,14 @@ IMAGE_SIZE=20M
 SETUP_DEV_LABEL=bme-setup
 DEBUG_DEV_LABEL=bme-debug
 
+# Setup用USBメモリに含めるファイルとディレクトリ
+SETUP_FILES=led.py setup.conf setup.sh system-reset.sh
+SETUP_DIRS=service/ config/ gpg/
+
+# Debug用USBメモリに含めるファイルとディレクトリ
+DEBUG_FILES=${SETUP_FILES}
+
+
 .PHONEY: all clean
 
 all: setup-usb.img setup-usb.img.gz debug-usb.img debug-usb.img.gz
@@ -22,18 +30,15 @@ debug-usb.img.gz: debug-usb.img
 	rm -f debug-usb.img.gz
 	gzip --keep debug-usb.img
 
-setup-usb.img: setup.conf setup.sh system-reset.sh service/* config/* gpg/*
+setup-usb.img: ${SETUP_FILES} ${SETUP_DIRS}
 	sudo rm -rf .su-img.tmp .su-root.tmp .su-fsroot.tmp
 	mkdir -p .su-root.tmp .su-fsroot.tmp
 
-	cp -a led.py setup.conf setup.sh system-reset.sh .su-root.tmp/
 	cd service && make
-	cp -a service/ .su-root.tmp/
+	cp -a ${SETUP_FILES} ${SETUP_DIRS} .su-root.tmp/
 	rm .su-root.tmp/service/Makefile
-	cp -a config/  .su-root.tmp/
 	rm .su-root.tmp/config/*.tmpl.conf
 	[ -f .su-root.tmp/config/wpa_supplicant.conf ] || (echo "ERROR: wpa_supplicant.conf file is not found." >&2; exit 1)
-	cp -a gpg/     .su-root.tmp/
 	touch .su-root.tmp/host_passwd.list
 	touch .su-root.tmp/host_secret.list
 
@@ -58,11 +63,11 @@ setup-usb.img: setup.conf setup.sh system-reset.sh service/* config/* gpg/*
 	mv .su-img.tmp setup-usb.img
 	sudo rm -rf .su-root.tmp .su-fsroot.tmp
 
-debug-usb.img: setup.conf setup.sh system-reset.sh
+debug-usb.img: ${DEBUG_FILES}
 	sudo rm -rf .du-img.tmp .du-root.tmp .du-fsroot.tmp
 	mkdir -p .du-root.tmp .du-fsroot.tmp
 
-	cp -a led.py setup.conf setup.sh system-reset.sh .du-root.tmp/
+	cp -a ${DEBUG_FILES} .du-root.tmp/
 
 	cd .du-root.tmp && find -type f -exec sha256sum '{}' '+' |sort >../.du-sha256sum
 	cd .du-root.tmp && mv ../.du-sha256sum sha256sum
