@@ -4,7 +4,6 @@
 set -eu
 
 TRUSTED_KEYS_DIR=/srv/deploy/trusted.gpg.d
-TRUSTED_KEYS_DIR=$PWD/gpg
 USB_MEMORY_ROOT=$1
 shift
 
