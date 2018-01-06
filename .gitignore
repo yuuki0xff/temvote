@@ -4,12 +4,12 @@
 # temporary files
 /maint-usb-memory/service/bme280d
 /maint-usb-memory/service/requirements.txt
-/maint-usb-memory/service/bme280d.conf
 
 # disk image files
 /maint-usb-memory/*.img
 /maint-usb-memory/*.img.gz
 
-# secret files
+# secret files and config files
 /maint-usb-memory/setup.conf
 /maint-usb-memory/config/wpa_supplicant.conf
+/maint-usb-memory/config/bme280d.conf
