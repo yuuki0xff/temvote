@@ -14,3 +14,4 @@
 /maint-usb-memory/config/wpa_supplicant.conf
 /maint-usb-memory/config/bme280d.conf
 /maint-usb-memory/config/bme280d-*.conf
+/maint-usb-memory/gpg/

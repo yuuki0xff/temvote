@@ -43,7 +43,7 @@ setup-usb.img: Makefile ${SETUP_FILES} ${SETUP_DIRS}
 	touch .su-root.tmp/host_passwd.list
 	touch .su-root.tmp/host_secret.list
 
-	cd .su-root.tmp && find -type f -exec sha256sum '{}' '+' |sort >../.su-sha256sum
+	cd .su-root.tmp && find -type f ! -name '*.list' -exec sha256sum '{}' '+' |sort >../.su-sha256sum
 	cd .su-root.tmp && mv ../.su-sha256sum sha256sum
 	cd .su-root.tmp && gpg --output sha256sum.sig --sign sha256sum
 

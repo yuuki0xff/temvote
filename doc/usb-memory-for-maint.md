@@ -58,6 +58,7 @@ Raspbian Stretch Liteをインストールした直後に実行することを�
 - led.py
 - system-reset.sh
 - service/bme280d  (bme280dの実行可能ファイル)
+- service/start-setup.sh  (setup.shの自動実行前する前に、署名チェックをする)
 - service/*.service
 - service/*.timer
 - service/*.automount

@@ -204,14 +204,21 @@ function install_autoreboot_service() {
 }
 
 function install_autosetup_service() {
+    install -Cd -o root -g root   -m 700 /srv/deploy
+    install -Cd -o root -g root   -m 700 /srv/deploy/trusted.gpg.d
+    install -Cd -o root -g root   -m 700 /srv/deploy/bin
+
+    # install trusted gpg keys
+    rsync -av --delete "${SELF_DIR}/gpg/"* /srv/deploy/trusted.gpg.d/
+
     install -C  -o root -g root   -m 755 "${SELF_DIR}/service/bme-debug.service" /etc/systemd/system/bme-debug.service
     install -C  -o root -g root   -m 755 "${SELF_DIR}/service/bme-setup.service" /etc/systemd/system/bme-setup.service
+    install -C  -o root -g root   -m 700 "${SELF_DIR}/service/start-setup.sh" /srv/deploy/bin/start-setup.sh
 
     install -C  -o root -g root   -m 755 "${SELF_DIR}/service/mnt-bmedebug.automount" /etc/systemd/system/mnt-bmedebug.automount
     install -C  -o root -g root   -m 755 "${SELF_DIR}/service/mnt-bmesetup.automount" /etc/systemd/system/mnt-bmesetup.automount
     install -C  -o root -g root   -m 755 "${SELF_DIR}/service/mnt-bmedebug.mount" /etc/systemd/system/mnt-bmedebug.mount
     install -C  -o root -g root   -m 755 "${SELF_DIR}/service/mnt-bmesetup.mount" /etc/systemd/system/mnt-bmesetup.mount
-
     mkdir /mnt/bmedebug /mnt/bmesetup
 
     systemctl daemon-reload

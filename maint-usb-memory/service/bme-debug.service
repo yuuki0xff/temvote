@@ -6,7 +6,7 @@ RequiresMountsFor=/mnt/bmedebug
 
 [Service]
 Type=oneshot
-ExecStart=/mnt/bmedebug/setup.sh bme280d-debug
+ExecStart=/srv/deploy/bin/start-setup.sh /mnt/bmedebug/setup.sh bme280d-debug
 TimeoutStartSec=infinity
 
 [Install]
