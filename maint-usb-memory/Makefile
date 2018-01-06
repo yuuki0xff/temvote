@@ -38,6 +38,7 @@ setup-usb.img: Makefile ${SETUP_FILES} ${SETUP_DIRS}
 	cp -a ${SETUP_FILES} ${SETUP_DIRS} .su-root.tmp/
 	rm .su-root.tmp/service/Makefile
 	rm .su-root.tmp/config/*.tmpl.conf
+	[ -f .su-root.tmp/config/bme280d.conf ] || (echo "ERROR: bme280d.cnof file is not found." >&2; exit 1)
 	[ -f .su-root.tmp/config/wpa_supplicant.conf ] || (echo "ERROR: wpa_supplicant.conf file is not found." >&2; exit 1)
 	touch .su-root.tmp/host_passwd.list
 	touch .su-root.tmp/host_secret.list
