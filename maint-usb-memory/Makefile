@@ -30,7 +30,7 @@ debug-usb.img.gz: debug-usb.img
 	rm -f debug-usb.img.gz
 	gzip --keep debug-usb.img
 
-setup-usb.img: ${SETUP_FILES} ${SETUP_DIRS}
+setup-usb.img: Makefile ${SETUP_FILES} ${SETUP_DIRS}
 	sudo rm -rf .su-img.tmp .su-root.tmp .su-fsroot.tmp
 	mkdir -p .su-root.tmp .su-fsroot.tmp
 
@@ -63,7 +63,7 @@ setup-usb.img: ${SETUP_FILES} ${SETUP_DIRS}
 	mv .su-img.tmp setup-usb.img
 	sudo rm -rf .su-root.tmp .su-fsroot.tmp
 
-debug-usb.img: ${DEBUG_FILES}
+debug-usb.img: Makefile ${DEBUG_FILES}
 	sudo rm -rf .du-img.tmp .du-root.tmp .du-fsroot.tmp
 	mkdir -p .du-root.tmp .du-fsroot.tmp
 
