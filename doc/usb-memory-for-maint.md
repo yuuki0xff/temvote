@@ -30,7 +30,7 @@ $ dd bs=1M if=debug-usb.img of=/path/to/usb/memory2
 
 詳細なシーケンスはこのようになっている。
 
-1. /etc/fstabには、`bme-(setup|debug)`のラベルがついたFATパーティションが自動マウントされるよう設定している。
+1. systemdのautomountにより、`bme-(setup|debug)`のラベルがついたFATパーティションが自動マウントされるよう設定している。
    設定用のUSBメモリが接続されると、この設定に従い、即座にマウントされる。
 2. USBメモリがマウントされたあとのトリガーで、`bme-(setup|debug).service`が起動する。
    これらのサービスは、`/srv/deploy/bin/start-setup.sh`を実行する。
