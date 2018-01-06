@@ -70,6 +70,11 @@ function blink_led_lamp() {
     "$SELF_DIR/led.py" blink
 }
 
+# blink led lamp to notify error.
+function error_blink_led_lamp() {
+    "$SELF_DIR/led.py" error-blink
+}
+
 function _random_hex_str() {
     local length=$1
     dd if=/dev/urandom bs="$length" count=1 |od -x -A none |tr -d ' ' |head --bytes="$length"
@@ -300,6 +305,6 @@ esac || {
 turn_off_led_lamp
 if [ $ret -ne 0 ]; then
     # if occurred an error, notify error to operator by led lamp.
-    blink_led_lamp
+    error_blink_led_lamp
 fi
 exit $ret

@@ -27,6 +27,20 @@ try:
             time.sleep(0.5)
             GPIO.output(gpio_id, GPIO.LOW)
             time.sleep(0.5)
+    elif mode == 'error-blink':
+        for _ in range(30):
+            GPIO.output(gpio_id, GPIO.HIGH)
+            time.sleep(0.15)
+            GPIO.output(gpio_id, GPIO.LOW)
+            time.sleep(0.15)
+            GPIO.output(gpio_id, GPIO.HIGH)
+            time.sleep(0.15)
+            GPIO.output(gpio_id, GPIO.LOW)
+            time.sleep(0.15)
+            GPIO.output(gpio_id, GPIO.HIGH)
+            time.sleep(0.15)
+            GPIO.output(gpio_id, GPIO.LOW)
+            time.sleep(0.8)
     elif mode == 'on':
         GPIO.output(gpio_id, GPIO.HIGH)
         while True:
