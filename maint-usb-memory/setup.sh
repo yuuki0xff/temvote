@@ -177,6 +177,15 @@ function install_bme280d_service() {
     install -C  -o root -g daemon -m 750 "${SELF_DIR}/service/bme280d" /srv/bme280d/bin/bme280d
     install -C  -o root -g root   -m 600 "${SELF_DIR}/service/bme280d.service" /etc/systemd/system/bme280d.service
     install -C  -o root -g root   -m 600 "${SELF_DIR}/config/bme280d.tmpl.conf" /srv/bme280d/conf/bme280d.tmpl.conf
+
+    # install config file for each host.
+    local conf="${SELF_DIR}/config/bme280d-$(hostname |tr -d "\n").conf"
+    if [ -f "$conf" ]; then
+        install -C -o root -g root -m 600 "$conf" /srv/bme280d/conf/bme280d.conf
+    else
+        return 1
+    fi
+
     systemctl daemon-reload
     systemctl enable bme280d.service
 }
