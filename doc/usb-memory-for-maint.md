@@ -1,8 +1,22 @@
 # メンテナンス用USBメモリ
+センサノードのソフトウェア更新や設定更新のために使用するUSBメモリです。
 
-センサノードの保守管理のために使用するUSBメモリです。
 
 ## 作り方
+1. ThingWorxのAPIキーを作る。
+   セットアップするRaspberry Piの個数だけ、APIキーを作成しておく。
+2. ThingWorxのThingを作る。
+   下記の4つのプロパティを持つThingを、Raspberry Piの個数だけ作成する。
+   * temperature (NUMBER型)
+   * humidity (NUMBER型)
+   * pressure (NUMBER型)
+   * lastUpdated (DATETIME型)
+2. bme280dのconfigを作る。
+   bme280dは室温を測定して、測定結果をThingWorxに送信するプログラムである。
+   `./maint-usb-memory/config/bme280d-${hostname}.conf`に、1台ごとに別のAPIキーとThing名を書き込む。
+   なお、同じディレクトリにテンプレート(`bme280d.tmpl.conf`)があるので、configの書き方の参考にするとよい。
+3. WPA Supplicantのconfigファイルに、設置場所から接続可能なWiFiの設定を書く。
+4. 下記のコマンドを実行して、ディスクイメージをUSBメモリへ書き込む。
 ```bash
 $ cd ./maint-usb-memory
 $ make
@@ -18,13 +32,9 @@ $ dd bs=1M if=debug-usb.img of=/path/to/usb/memory2
 
 1. /etc/fstabには、`bme-(setup|debug)`のラベルがついたFATパーティションが自動マウントされるよう設定している。
    設定用のUSBメモリが接続されると、この設定に従い、即座にマウントされる。
-2. USBメモリがマウントされたあとのトリガーで、`bme280-autorun-*.service`が起動する。
-   これらのサービスは、`/etc/bme280d-autorun/*.sh`を実行する。
-3. USBメモリに保存されたファイルの署名をチェックする。
-   具体的には、全てのファイルのハッシュ値が、`sha256sum`ファイルと一致するか確認する。
-   その後、`sha256sum.sig`を用いて、`sha256sum`ファイルの署名を検証する。
-4. USBメモリ内のスクリプトを実行する。
-5. 処理完了後は、デバイスが取り外されるまでLEDを点灯するスクリプトを実行する
+2. USBメモリがマウントされたあとのトリガーで、`bme-(setup|debug).service`が起動する。
+   これらのサービスは、マウントしたUSBメモリの直下にある`setup.sh`を引数付きで呼び出す。
+3. 処理完了後は、デバイスが取り外されるまでLEDを点滅するスクリプトを実行する
    
    
 ## 初期設定 & 設定更新用USBメモリ
@@ -44,13 +54,18 @@ Raspbian Stretch Liteをインストールした直後に実行することを�
 - sha256sum
 - sha256sum.sgn
 - setup.sh
+- setup.conf
+- led.py
 - system-reset.sh
-- service/bme280d
-- service/bme280d.service
+- service/bme280d  (bme280dの実行可能ファイル)
+- service/*.service
+- service/*.timer
+- service/*.automount
+- service/*.mount
 - config/wpa_supplicant.conf  (Wi-Fiの設定)
 - gpg/*.key  (GPG公開鍵) 
-- gpg/trusted.txt  (信頼するGPG公開鍵のリスト) 
-- host_secret.list  (ホスト名とトークンのリスト)
+- host_passwd.list  (setup_new_nodeでの設定内容。書式はホスト名:ユーザ名:パスワード)
+- host_secret.list  (ホスト名とトークンのリスト。未使用)
 
 
 ## デバッグ用USBメモリ
@@ -58,11 +73,12 @@ Raspbian Stretch Liteをインストールした直後に実行することを�
 
 やること:
 - sshdを起動
-- 踏み台サーバとのsshトンネル確立を試みる
 - getty@tty1 ~ getty@tty5を起動
 
 中身:
 - sha256sum
 - sha256sum.sgn
 - setup.sh
+- setup.conf
+- led.py
 - system-reset.sh
