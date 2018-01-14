@@ -4,8 +4,7 @@
 set -eu
 
 TRUSTED_KEYS_DIR=/srv/deploy/trusted.gpg.d
-USB_MEMORY_ROOT=$1
-shift
+USB_MEMORY_ROOT=$(dirname $(readlink -f $1))
 
 function generate_sha256sum() {
     cd "${USB_MEMORY_ROOT}"
